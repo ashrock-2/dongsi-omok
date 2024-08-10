@@ -1,0 +1,199 @@
+---
+import { BOARD_SIZE, ALPHABETS } from "../constants";
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Astro</title>
+    </head>
+    <body>
+        <div class="board">
+            {
+                Array.from({ length: BOARD_SIZE }, (_, i) => i).map((row) =>
+                    ALPHABETS.slice(0, BOARD_SIZE).map((column) => (
+                        <button
+                            data-row={row}
+                            data-col={column}
+                            aria-label={`row:${row + 1} col:${column}`}
+                        />
+                    )),
+                )
+            }
+        </div>
+    </body>
+    <style define:vars={{ boardSize: BOARD_SIZE }}>
+        .board {
+            width: 500px;
+            height: 500px;
+            display: grid;
+            grid-template-columns: repeat(var(--boardSize), 1fr);
+            grid-template-rows: repeat(var(--boardSize), 1fr);
+            background-color: burlywood;
+        }
+        button {
+            background-color: transparent;
+            border: none;
+            position: relative;
+            &:not(:disabled) {
+                cursor: pointer;
+            }
+
+            &.stone {
+                border-radius: 50%;
+                &.white {
+                    background-color: white;
+                    &::before,
+                    &::after {
+                        z-index: -1;
+                    }
+                }
+                &.black {
+                    background-color: black;
+                }
+            }
+
+            &:hover:not(:disabled) {
+                background-color: hsl(30, 50%, 80%);
+            }
+
+            &:active:not(:disabled) {
+                background-color: hsl(30, 50%, 88%);
+            }
+
+            &::before,
+            &::after {
+                content: "";
+                position: absolute;
+                background-color: black;
+            }
+            &::before {
+                width: 1px;
+                height: 100%;
+                top: 0;
+            }
+            &::after {
+                height: 1px;
+                width: 100%;
+                left: 0;
+            }
+            &[data-row="0"] {
+                &::before {
+                    top: 50%;
+                    height: 50%;
+                }
+            }
+            &[data-row="18"] {
+                &::before {
+                    height: 50%;
+                }
+            }
+            &[data-col="A"] {
+                &::after {
+                    left: 50%;
+                    width: 50%;
+                }
+            }
+            &[data-col="S"] {
+                &::after {
+                    width: 50%;
+                }
+            }
+            &:last-child::before {
+                height: 54%;
+            }
+        }
+    </style>
+    <script>
+        import {
+            BOARD_SIZE,
+            type BOARD_TYPE,
+            type ACTION_TYPE,
+            ALPHABETS,
+        } from "../constants";
+        import { check_is_win } from "../utils";
+        const board: BOARD_TYPE = Array.from({ length: BOARD_SIZE }, (_) =>
+            Array.from({ length: BOARD_SIZE }, (__) => null),
+        );
+        const actions: Array<ACTION_TYPE> = [];
+        let isBlack = true;
+
+        document.querySelector(".board")?.addEventListener("click", (e) => {
+            const button = e.target as HTMLButtonElement;
+            const {
+                dataset: { row, col },
+            } = button;
+            if (!row || !col) {
+                return;
+            }
+            if (isBlack) {
+                socket.send("place a black stone");
+                place_a_black_stone(button);
+                isBlack = false;
+                board[Number(row)][
+                    ALPHABETS.findIndex((alphabet) => alphabet === col)
+                ] = "black";
+                actions.push({
+                    id: "PLACE",
+                    item: "black",
+                    row,
+                    col,
+                });
+                if (
+                    check_is_win(
+                        board,
+                        Number(row),
+                        ALPHABETS.findIndex((alphabet) => alphabet === col),
+                    )
+                ) {
+                    alert("black win!");
+                }
+            } else {
+                socket.send("place a white stone");
+                place_a_white_stone(button);
+                isBlack = true;
+                board[Number(row)][
+                    ALPHABETS.findIndex((alphabet) => alphabet === col)
+                ] = "white";
+                actions.push({
+                    id: "PLACE",
+                    item: "white",
+                    row,
+                    col,
+                });
+                if (
+                    check_is_win(
+                        board,
+                        Number(row),
+                        ALPHABETS.findIndex((alphabet) => alphabet === col),
+                    )
+                ) {
+                    alert("white win!");
+                }
+            }
+        });
+
+        const place_a_black_stone = (button: HTMLButtonElement) => {
+            button.classList.add("stone");
+            button.classList.add("black");
+            button.setAttribute("disabled", "true");
+        };
+        const place_a_white_stone = (button: HTMLButtonElement) => {
+            button.classList.add("stone");
+            button.classList.add("white");
+            button.setAttribute("disabled", "true");
+        };
+
+        /** 웹소켓 */
+        const socket = new WebSocket("ws://localhost:8080");
+        socket.onopen = (e) => {
+            console.log("socketConnetcted");
+        };
+        socket.onmessage = (event) => {
+            console.log(event);
+        };
+    </script>
+</html>
