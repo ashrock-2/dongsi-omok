@@ -10,8 +10,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^4.13.1",
     "@astrojs/check": "^0.9.1",
+    "@dongsi-omok/shared": "workspace:^",
+    "astro": "^4.13.1",
     "typescript": "^5.5.4"
   }
 }

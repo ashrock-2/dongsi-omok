@@ -1,5 +1,5 @@
 ---
-import { BOARD_SIZE, ALPHABETS } from "../constants";
+import { BOARD_SIZE, ALPHABETS } from "@dongsi-omok/shared";
 ---
 
 <html lang="en">
@@ -113,7 +113,7 @@ import { BOARD_SIZE, ALPHABETS } from "../constants";
             type BOARD_TYPE,
             type ACTION_TYPE,
             ALPHABETS,
-        } from "../constants";
+        } from "@dongsi-omok/shared";
         import { check_is_win } from "../utils";
         const board: BOARD_TYPE = Array.from({ length: BOARD_SIZE }, (_) =>
             Array.from({ length: BOARD_SIZE }, (__) => null),

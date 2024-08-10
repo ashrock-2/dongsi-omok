@@ -1,4 +1,4 @@
-import type { BOARD_TYPE } from "./constants";
+import { type BOARD_TYPE } from "@dongsi-omok/shared";
 
 export const check_is_win = (board: BOARD_TYPE, row: number, col: number) => {
   const item = board[row][col];

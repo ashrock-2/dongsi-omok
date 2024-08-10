@@ -4,8 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "cd front-end && astro dev",
-    "dev:ws": "cd back-end && pnpm tsc && node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:ws": "cd back-end && pnpm tsc && node dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +12,7 @@
   "private": true,
   "workspaces": [
     "front-end",
-    "back-end"
+    "back-end",
+    "shared"
   ]
 }
