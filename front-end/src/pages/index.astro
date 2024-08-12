@@ -118,7 +118,6 @@ import { BOARD_SIZE, ALPHABETS } from "@dongsi-omok/shared";
         const board: BOARD_TYPE = Array.from({ length: BOARD_SIZE }, (_) =>
             Array.from({ length: BOARD_SIZE }, (__) => null),
         );
-        const actions: Array<ACTION_TYPE> = [];
         let isBlack = true;
 
         document.querySelector(".board")?.addEventListener("click", (e) => {
@@ -130,18 +129,20 @@ import { BOARD_SIZE, ALPHABETS } from "@dongsi-omok/shared";
                 return;
             }
             if (isBlack) {
-                socket.send("place a black stone");
+              const action: ACTION_TYPE<'PLACE'> = {
+                  id: 'PLACE',
+                  payload: {
+                    item: 'black',
+                    row,
+                    col,
+                  }
+              };
+                socket.send(JSON.stringify(action));
                 place_a_black_stone(button);
                 isBlack = false;
                 board[Number(row)][
                     ALPHABETS.findIndex((alphabet) => alphabet === col)
                 ] = "black";
-                actions.push({
-                    id: "PLACE",
-                    item: "black",
-                    row,
-                    col,
-                });
                 if (
                     check_is_win(
                         board,
@@ -152,18 +153,20 @@ import { BOARD_SIZE, ALPHABETS } from "@dongsi-omok/shared";
                     alert("black win!");
                 }
             } else {
-                socket.send("place a white stone");
+              const action: ACTION_TYPE<'PLACE'> = {
+                  id: 'PLACE',
+                  payload: {
+                    item: 'white',
+                    row,
+                    col,
+                  }
+              };
+                socket.send(JSON.stringify(action));
                 place_a_white_stone(button);
                 isBlack = true;
                 board[Number(row)][
                     ALPHABETS.findIndex((alphabet) => alphabet === col)
                 ] = "white";
-                actions.push({
-                    id: "PLACE",
-                    item: "white",
-                    row,
-                    col,
-                });
                 if (
                     check_is_win(
                         board,
