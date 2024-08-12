@@ -196,7 +196,7 @@ import { BOARD_SIZE, ALPHABETS } from "@dongsi-omok/shared";
             console.log("socketConnetcted");
         };
         socket.onmessage = (event) => {
-            console.log(event);
+            console.log(JSON.parse(event.data));
         };
     </script>
 </html>

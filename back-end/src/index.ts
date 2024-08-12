@@ -21,7 +21,7 @@ const handleAction = (action: AnyActionType) => {
   match(action).with({ id: 'PLACE'}, ({payload}) => {
     wss.clients.forEach((client) => {
       if (client.readyState === client.OPEN) {
-        client.send(JSON.stringify(payload));
+        client.send(JSON.stringify(action));
       }
     });
   }).exhaustive();
