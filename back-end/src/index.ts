@@ -47,7 +47,10 @@ const handleAction = (action: AnyActionType) => {
 }
 
 wss.on("connection", (ws) => {
-  console.log("New client connected");
+  match(wss.clients.size)
+    .with(1, () => ws.send(JSON.stringify('You are Black')))
+    .with(2, () => ws.send(JSON.stringify('You are White')))
+    .otherwise(() => ws.send(JSON.stringify('You are now allowed.')));
 
   ws.on("message", (message) => {
     try {
