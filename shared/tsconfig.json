@@ -2,9 +2,7 @@
   "extends": "../tsconfig.settings.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": ".",
-    "rootDir": "src"
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
   },
-"include": ["src"],
-"exclude": ["node_modules", "dist"]
 }

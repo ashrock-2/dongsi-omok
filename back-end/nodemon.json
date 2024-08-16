@@ -1,5 +1,0 @@
-{
-  "watch": ["src"],
-  "ext": "ts",
-  "exec": "pnpm tsc && node dist/index.js"
-}

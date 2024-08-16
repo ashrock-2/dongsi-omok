@@ -10,5 +10,8 @@
   "dependencies": {
     "typescript": "^5.5.4"
   },
-  "type": "module"
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  }
 }
