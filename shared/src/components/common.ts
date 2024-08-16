@@ -1,5 +1,6 @@
-export type ITEM_TYPE = null | 'black' | 'white' | 'prohibit';
-export type BOARD_TYPE = Array<Array<ITEM_TYPE>>;
+export type Player = 'black' | 'white';
+export type BoardItem = Player | 'prohibit';
+export type Board = Array<Array<BoardItem | null>>;
 
 export const BOARD_SIZE = 19;
 export const ALPHABETS = [

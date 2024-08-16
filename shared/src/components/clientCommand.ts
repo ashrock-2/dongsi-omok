@@ -1,4 +1,4 @@
-import type { ITEM_TYPE } from './common';
+import type { BoardItem, Player } from './common';
 
 export const ClientCommands = {
   PLACE: 'PLACE',
@@ -6,7 +6,7 @@ export const ClientCommands = {
 export type KeyOfClientCommands = keyof typeof ClientCommands;
 export type ClientCommandType<COMMAND extends keyof typeof ClientCommands> = {
   id: COMMAND;
-  player: 'black' | 'white';
+  player: Player;
   playerId?: string;
   payload: ClientCommandPayloadRegistry[COMMAND];
 };
@@ -14,7 +14,7 @@ export type ClientCommand = ClientCommandType<KeyOfClientCommands>;
 
 type ClientCommandPayloadMapType = {
   [ClientCommands.PLACE]: {
-    item: ITEM_TYPE;
+    item: BoardItem;
     row: string;
     col: string;
   };

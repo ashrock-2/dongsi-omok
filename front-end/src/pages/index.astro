@@ -110,15 +110,17 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
   <script>
     import {
       BOARD_SIZE,
-      type BOARD_TYPE,
+      type Board,
       ALPHABETS,
       type ClientCommandType,
+      type BoardItem,
+      type Player,
     } from '@dongsi-omok/shared';
     import { check_is_win } from '../utils';
-    const board: BOARD_TYPE = Array.from({ length: BOARD_SIZE }, (_) =>
+    const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
       Array.from({ length: BOARD_SIZE }, (__) => null),
     );
-    let player: 'white' | 'black' | null = null;
+    let player: Player | null = null;
 
     document.querySelector('.board')?.addEventListener('click', (e) => {
       const button = e.target as HTMLButtonElement;
@@ -156,10 +158,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       }
     });
 
-    const place_a_item = (
-      button: HTMLButtonElement,
-      item: 'black' | 'white' | 'prohibit',
-    ) => {
+    const place_a_item = (button: HTMLButtonElement, item: BoardItem) => {
       button.classList.add('stone');
       button.classList.add(item);
       button.setAttribute('disabled', 'true');
