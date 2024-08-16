@@ -112,13 +112,13 @@ import { BOARD_SIZE, ALPHABETS } from "@dongsi-omok/shared";
             BOARD_SIZE,
             type BOARD_TYPE,
             ALPHABETS,
-type ClientCommandType,
+            type ClientCommandType,
         } from "@dongsi-omok/shared";
         import { check_is_win } from "../utils";
         const board: BOARD_TYPE = Array.from({ length: BOARD_SIZE }, (_) =>
             Array.from({ length: BOARD_SIZE }, (__) => null),
         );
-        let isBlack = true;
+        let player: "white" | "black" | null = null;
 
         document.querySelector(".board")?.addEventListener("click", (e) => {
             const button = e.target as HTMLButtonElement;
@@ -128,75 +128,54 @@ type ClientCommandType,
             if (!row || !col) {
                 return;
             }
-            if (isBlack) {
-              const action: ClientCommandType<'PLACE'> = {
-                  id: 'PLACE',
-                  payload: {
-                    item: 'black',
-                    row,
-                    col,
-                  }
-              };
-                socket.send(JSON.stringify(action));
-                place_a_black_stone(button);
-                isBlack = false;
-                board[Number(row)][
-                    ALPHABETS.findIndex((alphabet) => alphabet === col)
-                ] = "black";
-                if (
-                    check_is_win(
-                        board,
-                        Number(row),
-                        ALPHABETS.findIndex((alphabet) => alphabet === col),
-                    )
-                ) {
-                    alert("black win!");
-                }
-            } else {
-              const action: ClientCommandType<'PLACE'> = {
-                  id: 'PLACE',
-                  payload: {
-                    item: 'white',
-                    row,
-                    col,
-                  }
-              };
-                socket.send(JSON.stringify(action));
-                place_a_white_stone(button);
-                isBlack = true;
-                board[Number(row)][
-                    ALPHABETS.findIndex((alphabet) => alphabet === col)
-                ] = "white";
-                if (
-                    check_is_win(
-                        board,
-                        Number(row),
-                        ALPHABETS.findIndex((alphabet) => alphabet === col),
-                    )
-                ) {
-                    alert("white win!");
-                }
+            if (player === null) {
+                return;
             }
-        });
+            const command: ClientCommandType<'PLACE'> = {
+                id: 'PLACE',
+                player,
+                payload: {
+                  item: player,
+                  row,
+                  col,
+                }
+            };
+            socket.send(JSON.stringify(command));
+            place_a_item(button, player);
+            board[Number(row)][
+                ALPHABETS.findIndex((alphabet) => alphabet === col)
+            ] = player;
 
-        const place_a_black_stone = (button: HTMLButtonElement) => {
+            if (
+                check_is_win(
+                    board,
+                    Number(row),
+                    ALPHABETS.findIndex((alphabet) => alphabet === col),
+                )
+            ) {
+                alert(`${player} win!`);
+            }
+          }
+        );
+
+        const place_a_item = (button: HTMLButtonElement, item: 'black' | 'white' | 'prohibit') => {
             button.classList.add("stone");
-            button.classList.add("black");
-            button.setAttribute("disabled", "true");
-        };
-        const place_a_white_stone = (button: HTMLButtonElement) => {
-            button.classList.add("stone");
-            button.classList.add("white");
+            button.classList.add(item);
             button.setAttribute("disabled", "true");
         };
 
         /** 웹소켓 */
         const socket = new WebSocket("ws://localhost:8080");
         socket.onopen = (e) => {
-            console.log("socketConnetcted");
+            console.log(e);
         };
         socket.onmessage = (event) => {
             console.log(JSON.parse(event.data));
+            if (JSON.parse(event.data) === 'You are Black') {
+              player = 'black';
+            } else if (JSON.parse(event.data) === 'You are White') {
+              player = 'white';
+            }
         };
     </script>
 </html>

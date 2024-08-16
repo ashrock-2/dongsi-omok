@@ -22,6 +22,8 @@ const mergePlaceAction = (actions: Array<ClientCommandType<'PLACE'>>) => {
   if (action1.payload.row === action2.payload.row && action1.payload.col === action2.payload.col) {
     const mergedAction: ClientCommandType<'PLACE'> = {
       id: 'PLACE',
+      // TODO: ServerCommand로 변경
+      player: 'white',
       payload: {
         item: 'prohibit',
         row: action1.payload.row,
