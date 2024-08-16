@@ -4,9 +4,9 @@ export const ClientCommands = {
   PLACE: 'PLACE',
 } as const;
 export type KeyOfClientCommands = keyof typeof ClientCommands;
-export type ClientCommandType<ACTION extends keyof typeof ClientCommands> = {
-  id: ACTION;
-  payload: ClientCommandPayloadRegistry[ACTION]
+export type ClientCommandType<COMMAND extends keyof typeof ClientCommands> = {
+  id: COMMAND;
+  payload: ClientCommandPayloadRegistry[COMMAND]
 };
 export type ClientCommand = ClientCommandType<KeyOfClientCommands>;
 
