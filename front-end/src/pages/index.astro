@@ -112,11 +112,15 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       BOARD_SIZE,
       type Board,
       ALPHABETS,
-      type ClientCommandType,
       type BoardItem,
       type Player,
+      makeClientCommand,
+      isValidServerCommand,
+      type ServerCommand,
+      type ServerCommandType,
     } from '@dongsi-omok/shared';
     import { check_is_win } from '../utils';
+    import { match } from 'ts-pattern';
     const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
       Array.from({ length: BOARD_SIZE }, (__) => null),
     );
@@ -133,16 +137,14 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       if (player === null) {
         return;
       }
-      const command: ClientCommandType<'PLACE'> = {
-        id: 'PLACE',
-        player,
-        payload: {
-          item: player,
-          row,
-          col,
-        },
-      };
-      socket.send(JSON.stringify(command));
+      socket.send(
+        JSON.stringify(
+          makeClientCommand('PLACE_ITEM', {
+            player,
+            payload: { item: player, row, col },
+          }),
+        ),
+      );
       place_a_item(button, player);
       board[Number(row)][ALPHABETS.findIndex((alphabet) => alphabet === col)] =
         player;
@@ -164,17 +166,35 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       button.setAttribute('disabled', 'true');
     };
 
+    const handleServerCommand = (command: ServerCommand) => {
+      match(command)
+        .with(
+          { id: 'PLACE_ITEM' },
+          (command: ServerCommandType<'PLACE_ITEM'>) => {},
+        )
+        .with(
+          { id: 'SET_PLAYER_COLOR' },
+          (command: ServerCommandType<'SET_PLAYER_COLOR'>) => {
+            player = command.payload.color;
+            console.log(`you are ${player}`);
+          },
+        )
+        .exhaustive();
+    };
+
     /** 웹소켓 */
     const socket = new WebSocket('ws://localhost:8080');
     socket.onopen = (e) => {
       console.log(e);
     };
     socket.onmessage = (event) => {
-      console.log(JSON.parse(event.data));
-      if (JSON.parse(event.data) === 'You are Black') {
-        player = 'black';
-      } else if (JSON.parse(event.data) === 'You are White') {
-        player = 'white';
+      try {
+        const parsedMessage = JSON.parse(event.data.toString());
+        if (isValidServerCommand(parsedMessage)) {
+          handleServerCommand(parsedMessage);
+        }
+      } catch (err) {
+        console.error('Failed to parse message', err);
       }
     };
   </script>

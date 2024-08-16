@@ -1,7 +1,7 @@
 import type { BoardItem, Player } from './common';
 
 export const ClientCommands = {
-  PLACE: 'PLACE',
+  PLACE_ITEM: 'PLACE_ITEM',
 } as const;
 export type KeyOfClientCommands = keyof typeof ClientCommands;
 export type ClientCommandType<COMMAND extends keyof typeof ClientCommands> = {
@@ -13,7 +13,7 @@ export type ClientCommandType<COMMAND extends keyof typeof ClientCommands> = {
 export type ClientCommand = ClientCommandType<KeyOfClientCommands>;
 
 type ClientCommandPayloadMapType = {
-  [ClientCommands.PLACE]: {
+  [ClientCommands.PLACE_ITEM]: {
     item: BoardItem;
     row: string;
     col: string;
@@ -35,4 +35,25 @@ export const isValidClientCommand = (
 
   const payload = command.payload as ClientCommandPayloadRegistry[typeof id];
   return payload !== undefined;
+};
+
+export const makeClientCommand = <T extends KeyOfClientCommands>(
+  id: T,
+  {
+    player,
+    playerId,
+    payload,
+  }: {
+    player: ClientCommand['player'];
+    playerId?: ClientCommand['playerId'];
+    payload: ClientCommandPayloadRegistry[T];
+  },
+) => {
+  const command: ClientCommandType<T> = {
+    id,
+    player,
+    playerId,
+    payload,
+  };
+  return command;
 };

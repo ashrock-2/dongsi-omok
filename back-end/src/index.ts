@@ -2,22 +2,25 @@ import {
   type ClientCommandType,
   type ClientCommand,
   isValidClientCommand,
+  makeServerCommand,
 } from '@dongsi-omok/shared';
 import { createServer } from 'http';
 import { match } from 'ts-pattern';
 import { WebSocketServer } from 'ws';
 const server = createServer();
 const wss = new WebSocketServer({ server });
-const commands: Array<ClientCommandType<'PLACE'>> = [];
+const commands: Array<ClientCommandType<'PLACE_ITEM'>> = [];
 
-const mergePlaceCommand = (commands: Array<ClientCommandType<'PLACE'>>) => {
+const mergePlaceCommand = (
+  commands: Array<ClientCommandType<'PLACE_ITEM'>>,
+) => {
   const [command1, command2] = commands;
   if (
     command1.payload.row === command2.payload.row &&
     command1.payload.col === command2.payload.col
   ) {
-    const mergedCommand: ClientCommandType<'PLACE'> = {
-      id: 'PLACE',
+    const mergedCommand: ClientCommandType<'PLACE_ITEM'> = {
+      id: 'PLACE_ITEM',
       // TODO: ServerCommand로 변경
       player: 'white',
       payload: {
@@ -33,7 +36,7 @@ const mergePlaceCommand = (commands: Array<ClientCommandType<'PLACE'>>) => {
 
 const handleClientCommand = (command: ClientCommand) => {
   match(command)
-    .with({ id: 'PLACE' }, (command) => {
+    .with({ id: 'PLACE_ITEM' }, (command) => {
       commands.push(command);
       if (commands.length === 2) {
         wss.clients.forEach((client) => {
@@ -48,8 +51,24 @@ const handleClientCommand = (command: ClientCommand) => {
 
 wss.on('connection', (ws) => {
   match(wss.clients.size)
-    .with(1, () => ws.send(JSON.stringify('You are Black')))
-    .with(2, () => ws.send(JSON.stringify('You are White')))
+    .with(1, () =>
+      ws.send(
+        JSON.stringify(
+          makeServerCommand('SET_PLAYER_COLOR', {
+            payload: { color: 'black' },
+          }),
+        ),
+      ),
+    )
+    .with(2, () =>
+      ws.send(
+        JSON.stringify(
+          makeServerCommand('SET_PLAYER_COLOR', {
+            payload: { color: 'white' },
+          }),
+        ),
+      ),
+    )
     .otherwise(() => {
       ws.send(JSON.stringify('You are not allowed.'));
       ws.close();

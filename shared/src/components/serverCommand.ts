@@ -1,7 +1,8 @@
-import type { BoardItem } from './common';
+import type { BoardItem, Player } from './common';
 
 export const ServerCommands = {
-  PLACE: 'PLACE',
+  PLACE_ITEM: 'PLACE_ITEM',
+  SET_PLAYER_COLOR: 'SET_PLAYER_COLOR',
 } as const;
 export type KeyOfServerCommands = keyof typeof ServerCommands;
 export type ServerCommandType<COMMAND extends keyof typeof ServerCommands> = {
@@ -11,10 +12,13 @@ export type ServerCommandType<COMMAND extends keyof typeof ServerCommands> = {
 export type ServerCommand = ServerCommandType<KeyOfServerCommands>;
 
 type ServerCommandPayloadMapType = {
-  [ServerCommands.PLACE]: {
+  [ServerCommands.PLACE_ITEM]: {
     item: BoardItem;
     row: string;
     col: string;
+  };
+  [ServerCommands.SET_PLAYER_COLOR]: {
+    color: Player;
   };
 };
 
@@ -33,4 +37,19 @@ export const isValidServerCommand = (
 
   const payload = command.payload as ServerCommandPayloadRegistry[typeof id];
   return payload !== undefined;
+};
+
+export const makeServerCommand = <T extends KeyOfServerCommands>(
+  id: T,
+  {
+    payload,
+  }: {
+    payload: ServerCommandPayloadRegistry[T];
+  },
+) => {
+  const command: ServerCommandType<T> = {
+    id,
+    payload,
+  };
+  return command;
 };
