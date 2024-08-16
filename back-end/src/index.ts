@@ -1,26 +1,26 @@
-import { ACTION_TYPES, type ACTION_TYPE, type ActionPayloadRegistry, type AnyActionType, type KeyOfActionTypes } from "@dongsi-omok/shared";
+import { ClientCommands, type ClientCommandType, type ClientCommandPayloadRegistry, type ClientCommand, type KeyOfClientCommands } from "@dongsi-omok/shared";
 import { createServer } from "http";
 import { match } from "ts-pattern";
 import { WebSocketServer } from "ws";
 const server = createServer();
 const wss = new WebSocketServer({ server });
-const actions: Array<ACTION_TYPE<'PLACE'>> = [];
+const actions: Array<ClientCommandType<'PLACE'>> = [];
 
-const isValidAction = (action: unknown): action is AnyActionType => {
+const isValidAction = (action: unknown): action is ClientCommand => {
   if (typeof action !== 'object' || action === null) return false;
   if (!('id' in action) || !('payload' in action)) return false;
 
-  const id = action.id as KeyOfActionTypes;
-  if (!(id in ACTION_TYPES)) return false;
+  const id = action.id as KeyOfClientCommands;
+  if (!(id in ClientCommands)) return false;
 
-  const payload = action.payload as ActionPayloadRegistry[typeof id];
+  const payload = action.payload as ClientCommandPayloadRegistry[typeof id];
   return payload !== undefined;
 };
 
-const mergePlaceAction = (actions: Array<ACTION_TYPE<'PLACE'>>) => {
+const mergePlaceAction = (actions: Array<ClientCommandType<'PLACE'>>) => {
   const [action1, action2] = actions;
   if (action1.payload.row === action2.payload.row && action1.payload.col === action2.payload.col) {
-    const mergedAction: ACTION_TYPE<'PLACE'> = {
+    const mergedAction: ClientCommandType<'PLACE'> = {
       id: 'PLACE',
       payload: {
         item: 'prohibit',
@@ -33,7 +33,7 @@ const mergePlaceAction = (actions: Array<ACTION_TYPE<'PLACE'>>) => {
   return actions;
 };
 
-const handleAction = (action: AnyActionType) => {
+const handleAction = (action: ClientCommand) => {
   match(action).with({ id: 'PLACE'}, (action) => {
     actions.push(action);
     if (actions.length === 2) {

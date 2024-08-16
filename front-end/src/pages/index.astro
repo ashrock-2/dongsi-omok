@@ -111,8 +111,8 @@ import { BOARD_SIZE, ALPHABETS } from "@dongsi-omok/shared";
         import {
             BOARD_SIZE,
             type BOARD_TYPE,
-            type ACTION_TYPE,
             ALPHABETS,
+type ClientCommandType,
         } from "@dongsi-omok/shared";
         import { check_is_win } from "../utils";
         const board: BOARD_TYPE = Array.from({ length: BOARD_SIZE }, (_) =>
@@ -129,7 +129,7 @@ import { BOARD_SIZE, ALPHABETS } from "@dongsi-omok/shared";
                 return;
             }
             if (isBlack) {
-              const action: ACTION_TYPE<'PLACE'> = {
+              const action: ClientCommandType<'PLACE'> = {
                   id: 'PLACE',
                   payload: {
                     item: 'black',
@@ -153,7 +153,7 @@ import { BOARD_SIZE, ALPHABETS } from "@dongsi-omok/shared";
                     alert("black win!");
                 }
             } else {
-              const action: ACTION_TYPE<'PLACE'> = {
+              const action: ClientCommandType<'PLACE'> = {
                   id: 'PLACE',
                   payload: {
                     item: 'white',
