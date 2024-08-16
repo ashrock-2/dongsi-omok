@@ -1,4 +1,4 @@
-import type { ITEM_TYPE } from "./common";
+import type { ITEM_TYPE } from './common';
 
 export const ClientCommands = {
   PLACE: 'PLACE',
@@ -6,9 +6,9 @@ export const ClientCommands = {
 export type KeyOfClientCommands = keyof typeof ClientCommands;
 export type ClientCommandType<COMMAND extends keyof typeof ClientCommands> = {
   id: COMMAND;
-  player: "black" | "white";
+  player: 'black' | 'white';
   playerId?: string;
-  payload: ClientCommandPayloadRegistry[COMMAND]
+  payload: ClientCommandPayloadRegistry[COMMAND];
 };
 export type ClientCommand = ClientCommandType<KeyOfClientCommands>;
 
@@ -17,14 +17,16 @@ type ClientCommandPayloadMapType = {
     item: ITEM_TYPE;
     row: string;
     col: string;
-  }
-}
+  };
+};
 
 export type ClientCommandPayloadRegistry = {
-  [K in typeof ClientCommands[keyof typeof ClientCommands]]: ClientCommandPayloadMapType[K];
-}
+  [K in (typeof ClientCommands)[keyof typeof ClientCommands]]: ClientCommandPayloadMapType[K];
+};
 
-export const isValidClientCommand = (command: unknown): command is ClientCommand => {
+export const isValidClientCommand = (
+  command: unknown,
+): command is ClientCommand => {
   if (typeof command !== 'object' || command === null) return false;
   if (!('id' in command) || !('payload' in command)) return false;
 

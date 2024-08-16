@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "dev:client": "pnpm --filter front-end exec astro dev",
-    "dev:server": "pnpm --filter back-end exec pnpm bun src/index.ts"
+    "dev:server": "pnpm --filter back-end exec pnpm bun src/index.ts",
+    "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,css,html,astro}\""
   },
   "keywords": [],
   "author": "",
@@ -14,5 +15,9 @@
     "front-end",
     "back-end",
     "shared"
-  ]
+  ],
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "prettier-plugin-astro": "^0.14.1"
+  }
 }
