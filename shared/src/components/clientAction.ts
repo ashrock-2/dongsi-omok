@@ -23,3 +23,14 @@ type ClientCommandPayloadMapType = {
 export type ClientCommandPayloadRegistry = {
   [K in typeof ClientCommands[keyof typeof ClientCommands]]: ClientCommandPayloadMapType[K];
 }
+
+export const isValidClientCommand = (command: unknown): command is ClientCommand => {
+  if (typeof command !== 'object' || command === null) return false;
+  if (!('id' in command) || !('payload' in command)) return false;
+
+  const id = command.id as KeyOfClientCommands;
+  if (!(id in ClientCommands)) return false;
+
+  const payload = command.payload as ClientCommandPayloadRegistry[typeof id];
+  return payload !== undefined;
+};

@@ -1,49 +1,38 @@
-import { ClientCommands, type ClientCommandType, type ClientCommandPayloadRegistry, type ClientCommand, type KeyOfClientCommands } from "@dongsi-omok/shared";
+import { type ClientCommandType, type ClientCommand, isValidClientCommand } from "@dongsi-omok/shared";
 import { createServer } from "http";
 import { match } from "ts-pattern";
 import { WebSocketServer } from "ws";
 const server = createServer();
 const wss = new WebSocketServer({ server });
-const actions: Array<ClientCommandType<'PLACE'>> = [];
+const commands: Array<ClientCommandType<'PLACE'>> = [];
 
-const isValidAction = (action: unknown): action is ClientCommand => {
-  if (typeof action !== 'object' || action === null) return false;
-  if (!('id' in action) || !('payload' in action)) return false;
-
-  const id = action.id as KeyOfClientCommands;
-  if (!(id in ClientCommands)) return false;
-
-  const payload = action.payload as ClientCommandPayloadRegistry[typeof id];
-  return payload !== undefined;
-};
-
-const mergePlaceAction = (actions: Array<ClientCommandType<'PLACE'>>) => {
-  const [action1, action2] = actions;
-  if (action1.payload.row === action2.payload.row && action1.payload.col === action2.payload.col) {
-    const mergedAction: ClientCommandType<'PLACE'> = {
+const mergePlaceCommand = (commands: Array<ClientCommandType<'PLACE'>>) => {
+  const [command1, command2] = commands;
+  if (command1.payload.row === command2.payload.row && command1.payload.col === command2.payload.col) {
+    const mergedCommand: ClientCommandType<'PLACE'> = {
       id: 'PLACE',
       // TODO: ServerCommand로 변경
       player: 'white',
       payload: {
         item: 'prohibit',
-        row: action1.payload.row,
-        col: action1.payload.col,
+        row: command1.payload.row,
+        col: command1.payload.col,
       }
     }
-    return [mergedAction];
+    return [mergedCommand];
   }
-  return actions;
+  return commands;
 };
 
-const handleAction = (action: ClientCommand) => {
-  match(action).with({ id: 'PLACE'}, (action) => {
-    actions.push(action);
-    if (actions.length === 2) {
+const handleClientCommand = (command: ClientCommand) => {
+  match(command).with({ id: 'PLACE'}, (command) => {
+    commands.push(command);
+    if (commands.length === 2) {
       wss.clients.forEach((client) => {
-          client.send(JSON.stringify(mergePlaceAction(actions)));
+          client.send(JSON.stringify(mergePlaceCommand(commands)));
       });
-      actions.pop();
-      actions.pop();
+      commands.pop();
+      commands.pop();
     }
   }).exhaustive();
 }
@@ -57,8 +46,8 @@ wss.on("connection", (ws) => {
   ws.on("message", (message) => {
     try {
       const parsedMessage = JSON.parse(message.toString());
-      if (isValidAction(parsedMessage)) {
-        handleAction(parsedMessage);
+      if (isValidClientCommand(parsedMessage)) {
+        handleClientCommand(parsedMessage);
       }
     } catch (err) {
       console.error("Failed to parse message", err);
