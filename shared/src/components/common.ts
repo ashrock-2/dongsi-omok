@@ -1,5 +1,5 @@
 export type Player = 'black' | 'white';
-export type BoardItem = Player | 'prohibit';
+export type BoardItem = Player | 'prohibit' | 'plan';
 export type Board = Array<Array<BoardItem | null>>;
 
 export const BOARD_SIZE = 19;

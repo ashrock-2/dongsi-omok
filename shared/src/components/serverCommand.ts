@@ -12,11 +12,11 @@ export type ServerCommandType<COMMAND extends keyof typeof ServerCommands> = {
 export type ServerCommand = ServerCommandType<KeyOfServerCommands>;
 
 type ServerCommandPayloadMapType = {
-  [ServerCommands.PLACE_ITEM]: {
+  [ServerCommands.PLACE_ITEM]: Array<{
     item: BoardItem;
     row: string;
     col: string;
-  };
+  }>;
   [ServerCommands.SET_PLAYER_COLOR]: {
     color: Player;
   };

@@ -42,6 +42,16 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
         cursor: pointer;
       }
 
+      &.plan {
+        background-color: blue;
+        border-radius: 50%;
+      }
+
+      &.prohibit {
+        background-color: red;
+        border-radius: 50%;
+      }
+
       &.stone {
         border-radius: 50%;
         &.white {
@@ -145,19 +155,9 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
           }),
         ),
       );
-      place_a_item(button, player);
+      place_a_item(button, 'plan');
       board[Number(row)][ALPHABETS.findIndex((alphabet) => alphabet === col)] =
-        player;
-
-      if (
-        check_is_win(
-          board,
-          Number(row),
-          ALPHABETS.findIndex((alphabet) => alphabet === col),
-        )
-      ) {
-        alert(`${player} win!`);
-      }
+        'plan';
     });
 
     const place_a_item = (button: HTMLButtonElement, item: BoardItem) => {
@@ -170,7 +170,67 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       match(command)
         .with(
           { id: 'PLACE_ITEM' },
-          (command: ServerCommandType<'PLACE_ITEM'>) => {},
+          (command: ServerCommandType<'PLACE_ITEM'>) => {
+            if (command.payload.length === 1) {
+              const {
+                payload: [{ item, row, col }],
+              } = command;
+              place_a_item(
+                document.querySelector(
+                  `[data-row="${row}"][data-col="${col}"]`,
+                )!,
+                item,
+              );
+              board[Number(row)][
+                ALPHABETS.findIndex((alphabet) => alphabet === col)
+              ] = item;
+            } else {
+              const {
+                payload: [
+                  { item: item1, row: row1, col: col1 },
+                  { item: item2, row: row2, col: col2 },
+                ],
+              } = command;
+              place_a_item(
+                document.querySelector(
+                  `[data-row="${row1}"][data-col="${col1}"]`,
+                )!,
+                item1,
+              );
+              board[Number(row1)][
+                ALPHABETS.findIndex((alphabet) => alphabet === col1)
+              ] = item1;
+
+              place_a_item(
+                document.querySelector(
+                  `[data-row="${row2}"][data-col="${col2}"]`,
+                )!,
+                item2,
+              );
+              board[Number(row2)][
+                ALPHABETS.findIndex((alphabet) => alphabet === col2)
+              ] = item2;
+
+              if (
+                check_is_win(
+                  board,
+                  Number(row1),
+                  ALPHABETS.findIndex((alphabet) => alphabet === col1),
+                )
+              ) {
+                alert(`${item1} win!`);
+              }
+              if (
+                check_is_win(
+                  board,
+                  Number(row2),
+                  ALPHABETS.findIndex((alphabet) => alphabet === col2),
+                )
+              ) {
+                alert(`${item2} win!`);
+              }
+            }
+          },
         )
         .with(
           { id: 'SET_PLAYER_COLOR' },
