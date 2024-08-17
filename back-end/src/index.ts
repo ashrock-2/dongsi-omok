@@ -7,44 +7,52 @@ import {
 import { createServer } from 'http';
 import { match } from 'ts-pattern';
 import { WebSocketServer } from 'ws';
+import {
+  getCommandQueueState,
+  mergePlaceItemCommand,
+  type PlaceCommandQueue,
+} from './util';
 const server = createServer();
 const wss = new WebSocketServer({ server });
-const commands: Array<ClientCommandType<'PLACE_ITEM'>> = [];
-
-const mergePlaceCommand = (
-  commands: Array<ClientCommandType<'PLACE_ITEM'>>,
-) => {
-  const [command1, command2] = commands;
-  if (
-    command1.payload.row === command2.payload.row &&
-    command1.payload.col === command2.payload.col
-  ) {
-    const mergedCommand: ClientCommandType<'PLACE_ITEM'> = {
-      id: 'PLACE_ITEM',
-      // TODO: ServerCommand로 변경
-      player: 'white',
-      payload: {
-        item: 'prohibit',
-        row: command1.payload.row,
-        col: command1.payload.col,
-      },
-    };
-    return [mergedCommand];
-  }
-  return commands;
-};
+const placeCommandQueue: PlaceCommandQueue = [];
 
 const handleClientCommand = (command: ClientCommand) => {
+  console.log(placeCommandQueue);
   match(command)
-    .with({ id: 'PLACE_ITEM' }, (command) => {
-      commands.push(command);
-      if (commands.length === 2) {
-        wss.clients.forEach((client) => {
-          client.send(JSON.stringify(mergePlaceCommand(commands)));
-        });
-        commands.pop();
-        commands.pop();
-      }
+    .with({ id: 'PLACE_ITEM' }, (command: ClientCommandType<'PLACE_ITEM'>) => {
+      match({
+        queueState: getCommandQueueState(placeCommandQueue),
+        player: command.player,
+      })
+        .with(
+          { queueState: 'EMPTY', player: 'black' },
+          { queueState: 'EMPTY', player: 'white' },
+          () => {
+            placeCommandQueue.push(command);
+          },
+        )
+        .with(
+          { queueState: 'BLACK', player: 'white' },
+          { queueState: 'WHITE', player: 'black' },
+          () => {
+            placeCommandQueue.push(command);
+            const placeItemCommands = mergePlaceItemCommand(placeCommandQueue);
+            wss.clients.forEach((client) => {
+              client.send(JSON.stringify(placeItemCommands));
+            });
+            placeCommandQueue.length = 0;
+          },
+        )
+        .with(
+          { queueState: 'BLACK', player: 'black' },
+          { queueState: 'WHITE', player: 'white' },
+          { queueState: 'FULL', player: 'black' },
+          { queueState: 'FULL', player: 'white' },
+          () => {
+            // do nothing
+          },
+        )
+        .exhaustive();
     })
     .exhaustive();
 };

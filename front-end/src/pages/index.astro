@@ -190,6 +190,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     socket.onmessage = (event) => {
       try {
         const parsedMessage = JSON.parse(event.data.toString());
+        console.log(parsedMessage);
         if (isValidServerCommand(parsedMessage)) {
           handleServerCommand(parsedMessage);
         }
