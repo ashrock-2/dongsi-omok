@@ -16,6 +16,7 @@
   },
   "type": "module",
   "devDependencies": {
-    "@types/ws": "^8.5.12"
+    "@types/ws": "^8.5.12",
+    "nodemon": "^3.1.4"
   }
 }
