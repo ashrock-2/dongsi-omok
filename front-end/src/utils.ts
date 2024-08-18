@@ -1,4 +1,4 @@
-import { type Board } from '@dongsi-omok/shared';
+import { type Board, type BoardItem } from '@dongsi-omok/shared';
 
 export const check_is_win = (board: Board, row: number, col: number) => {
   const item = board[row][col];
@@ -189,4 +189,13 @@ export const check_is_win = (board: Board, row: number, col: number) => {
   ) {
     return true;
   }
+};
+
+export const find_item_in_board = (row: string, col: string) =>
+  document.querySelector(`[data-row="${row}"][data-col="${col}"]`)!;
+
+export const place_a_item = (button: Element, item: BoardItem) => {
+  button.className = 'item';
+  button.classList.add(item);
+  button.setAttribute('disabled', 'true');
 };

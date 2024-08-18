@@ -8,7 +8,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
+    <title>동시오목</title>
   </head>
   <body>
     <div class="board">
@@ -42,17 +42,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
         cursor: pointer;
       }
 
-      &.plan {
-        background-color: blue;
-        border-radius: 50%;
-      }
-
-      &.prohibit {
-        background-color: red;
-        border-radius: 50%;
-      }
-
-      &.stone {
+      &.item {
         border-radius: 50%;
         &.white {
           background-color: white;
@@ -63,6 +53,14 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
         }
         &.black {
           background-color: black;
+        }
+        &.prohibit {
+          background-color: red;
+          border-radius: 50%;
+        }
+        &.plan {
+          background-color: blue;
+          border-radius: 50%;
         }
       }
 
@@ -117,146 +115,5 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       }
     }
   </style>
-  <script>
-    import {
-      BOARD_SIZE,
-      type Board,
-      ALPHABETS,
-      type BoardItem,
-      type Player,
-      makeClientCommand,
-      isValidServerCommand,
-      type ServerCommand,
-      type ServerCommandType,
-    } from '@dongsi-omok/shared';
-    import { check_is_win } from '../utils';
-    import { match } from 'ts-pattern';
-    const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
-      Array.from({ length: BOARD_SIZE }, (__) => null),
-    );
-    let player: Player | null = null;
-
-    document.querySelector('.board')?.addEventListener('click', (e) => {
-      const button = e.target as HTMLButtonElement;
-      const {
-        dataset: { row, col },
-      } = button;
-      if (!row || !col) {
-        return;
-      }
-      if (player === null) {
-        return;
-      }
-      socket.send(
-        JSON.stringify(
-          makeClientCommand('PLACE_ITEM', {
-            player,
-            payload: { item: player, row, col },
-          }),
-        ),
-      );
-      place_a_item(button, 'plan');
-      board[Number(row)][ALPHABETS.findIndex((alphabet) => alphabet === col)] =
-        'plan';
-    });
-
-    const place_a_item = (button: HTMLButtonElement, item: BoardItem) => {
-      button.classList.add('stone');
-      button.classList.add(item);
-      button.setAttribute('disabled', 'true');
-    };
-
-    const handleServerCommand = (command: ServerCommand) => {
-      match(command)
-        .with(
-          { id: 'PLACE_ITEM' },
-          (command: ServerCommandType<'PLACE_ITEM'>) => {
-            if (command.payload.length === 1) {
-              const {
-                payload: [{ item, row, col }],
-              } = command;
-              place_a_item(
-                document.querySelector(
-                  `[data-row="${row}"][data-col="${col}"]`,
-                )!,
-                item,
-              );
-              board[Number(row)][
-                ALPHABETS.findIndex((alphabet) => alphabet === col)
-              ] = item;
-            } else {
-              const {
-                payload: [
-                  { item: item1, row: row1, col: col1 },
-                  { item: item2, row: row2, col: col2 },
-                ],
-              } = command;
-              place_a_item(
-                document.querySelector(
-                  `[data-row="${row1}"][data-col="${col1}"]`,
-                )!,
-                item1,
-              );
-              board[Number(row1)][
-                ALPHABETS.findIndex((alphabet) => alphabet === col1)
-              ] = item1;
-
-              place_a_item(
-                document.querySelector(
-                  `[data-row="${row2}"][data-col="${col2}"]`,
-                )!,
-                item2,
-              );
-              board[Number(row2)][
-                ALPHABETS.findIndex((alphabet) => alphabet === col2)
-              ] = item2;
-
-              if (
-                check_is_win(
-                  board,
-                  Number(row1),
-                  ALPHABETS.findIndex((alphabet) => alphabet === col1),
-                )
-              ) {
-                alert(`${item1} win!`);
-              }
-              if (
-                check_is_win(
-                  board,
-                  Number(row2),
-                  ALPHABETS.findIndex((alphabet) => alphabet === col2),
-                )
-              ) {
-                alert(`${item2} win!`);
-              }
-            }
-          },
-        )
-        .with(
-          { id: 'SET_PLAYER_COLOR' },
-          (command: ServerCommandType<'SET_PLAYER_COLOR'>) => {
-            player = command.payload.color;
-            console.log(`you are ${player}`);
-          },
-        )
-        .exhaustive();
-    };
-
-    /** 웹소켓 */
-    const socket = new WebSocket('ws://localhost:8080');
-    socket.onopen = (e) => {
-      console.log(e);
-    };
-    socket.onmessage = (event) => {
-      try {
-        const parsedMessage = JSON.parse(event.data.toString());
-        console.log(parsedMessage);
-        if (isValidServerCommand(parsedMessage)) {
-          handleServerCommand(parsedMessage);
-        }
-      } catch (err) {
-        console.error('Failed to parse message', err);
-      }
-    };
-  </script>
+  <script src="../index.ts"></script>
 </html>
