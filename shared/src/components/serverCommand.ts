@@ -3,6 +3,7 @@ import type { BoardItem, Player } from './common';
 export const ServerCommands = {
   PLACE_ITEM: 'PLACE_ITEM',
   SET_PLAYER_COLOR: 'SET_PLAYER_COLOR',
+  START_GAME: 'START_GAME',
 } as const;
 export type KeyOfServerCommands = keyof typeof ServerCommands;
 export type ServerCommandType<COMMAND extends keyof typeof ServerCommands> = {
@@ -20,6 +21,7 @@ type ServerCommandPayloadMapType = {
   [ServerCommands.SET_PLAYER_COLOR]: {
     color: Player;
   };
+  [ServerCommands.START_GAME]: {};
 };
 
 export type ServerCommandPayloadRegistry = {

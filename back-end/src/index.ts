@@ -68,15 +68,20 @@ wss.on('connection', (ws) => {
         ),
       ),
     )
-    .with(2, () =>
+    .with(2, () => {
+      wss.clients.forEach((client) =>
+        client.send(
+          JSON.stringify(makeServerCommand('START_GAME', { payload: {} })),
+        ),
+      );
       ws.send(
         JSON.stringify(
           makeServerCommand('SET_PLAYER_COLOR', {
             payload: { color: 'white' },
           }),
         ),
-      ),
-    )
+      );
+    })
     .otherwise(() => {
       ws.send(JSON.stringify('You are not allowed.'));
       ws.close();

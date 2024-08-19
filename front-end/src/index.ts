@@ -2,19 +2,23 @@ import {
   BOARD_SIZE,
   type Board,
   ALPHABETS,
-  type BoardItem,
   type Player,
   makeClientCommand,
   isValidServerCommand,
   type ServerCommand,
   type ServerCommandType,
+  type GameState,
+  ProhibitedGameStateForClientPlaceItem,
 } from '@dongsi-omok/shared';
 import { check_is_win, find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
+/** 웹소켓 */
+const socket = new WebSocket('ws://localhost:8080');
 const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
   Array.from({ length: BOARD_SIZE }, (__) => null),
 );
 let player: Player | null = null;
+let gameState: GameState = 'WAITING_FOR_OPPONENT';
 
 document.querySelector('.board')?.addEventListener('click', (e) => {
   const button = e.target as HTMLButtonElement;
@@ -22,6 +26,11 @@ document.querySelector('.board')?.addEventListener('click', (e) => {
     dataset: { row, col },
   } = button;
   if (!row || !col) {
+    return;
+  }
+  if (ProhibitedGameStateForClientPlaceItem.includes(gameState)) {
+    console.log(gameState);
+    console.log('wait for opponent');
     return;
   }
   if (player === null) {
@@ -38,6 +47,7 @@ document.querySelector('.board')?.addEventListener('click', (e) => {
   place_a_item(button, 'plan');
   board[Number(row)][ALPHABETS.findIndex((alphabet) => alphabet === col)] =
     'plan';
+  gameState = 'AWAIT_MOVE';
 });
 
 const handleServerCommand = (command: ServerCommand) => {
@@ -87,6 +97,7 @@ const handleServerCommand = (command: ServerCommand) => {
           alert(`${item2} win!`);
         }
       }
+      gameState = 'IN_PROGRESS';
     })
     .with(
       { id: 'SET_PLAYER_COLOR' },
@@ -95,11 +106,12 @@ const handleServerCommand = (command: ServerCommand) => {
         console.log(`you are ${player}`);
       },
     )
+    .with({ id: 'START_GAME' }, () => {
+      gameState = 'IN_PROGRESS';
+    })
     .exhaustive();
 };
 
-/** 웹소켓 */
-const socket = new WebSocket('ws://localhost:8080');
 socket.onopen = (e) => {
   console.log(e);
 };

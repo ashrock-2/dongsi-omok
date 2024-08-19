@@ -1,4 +1,4 @@
-import type { BoardItem, Player } from './common';
+import type { BoardItem, GameState, Player } from './common';
 
 export const ClientCommands = {
   PLACE_ITEM: 'PLACE_ITEM',
@@ -57,3 +57,8 @@ export const makeClientCommand = <T extends KeyOfClientCommands>(
   };
   return command;
 };
+
+export const ProhibitedGameStateForClientPlaceItem: Array<GameState> = [
+  'WAITING_FOR_OPPONENT',
+  'AWAIT_MOVE',
+] as const;

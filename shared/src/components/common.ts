@@ -1,6 +1,11 @@
 export type Player = 'black' | 'white';
 export type BoardItem = Player | 'prohibit' | 'plan';
 export type Board = Array<Array<BoardItem | null>>;
+export type GameState =
+  | 'WAITING_FOR_OPPONENT'
+  | 'AWAIT_MOVE'
+  | 'IN_PROGRESS'
+  | 'GAME_OVER';
 
 export const BOARD_SIZE = 19;
 export const ALPHABETS = [
