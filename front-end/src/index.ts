@@ -10,7 +10,7 @@ import {
   type GameState,
   ProhibitedGameStateForClientPlaceItem,
 } from '@dongsi-omok/shared';
-import { check_is_win, find_item_in_board, place_a_item } from './utils';
+import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
 /** 웹소켓 */
 const socket = new WebSocket('ws://localhost:8080');
@@ -77,25 +77,6 @@ const handleServerCommand = (command: ServerCommand) => {
         board[Number(row2)][
           ALPHABETS.findIndex((alphabet) => alphabet === col2)
         ] = item2;
-
-        if (
-          check_is_win(
-            board,
-            Number(row1),
-            ALPHABETS.findIndex((alphabet) => alphabet === col1),
-          )
-        ) {
-          alert(`${item1} win!`);
-        }
-        if (
-          check_is_win(
-            board,
-            Number(row2),
-            ALPHABETS.findIndex((alphabet) => alphabet === col2),
-          )
-        ) {
-          alert(`${item2} win!`);
-        }
       }
       gameState = 'IN_PROGRESS';
     })

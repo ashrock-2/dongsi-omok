@@ -3,17 +3,24 @@ import {
   type ClientCommand,
   isValidClientCommand,
   makeServerCommand,
+  type Board,
+  BOARD_SIZE,
 } from '@dongsi-omok/shared';
 import { createServer } from 'http';
 import { match } from 'ts-pattern';
 import { WebSocketServer } from 'ws';
 import {
+  checkIsWin,
   getCommandQueueState,
   mergePlaceItemCommand,
+  updateBoardAndCheckWin,
   type PlaceCommandQueue,
 } from './util';
 const server = createServer();
 const wss = new WebSocketServer({ server });
+const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
+  Array.from({ length: BOARD_SIZE }, (__) => null),
+);
 const placeCommandQueue: PlaceCommandQueue = [];
 
 const handleClientCommand = (command: ClientCommand) => {
@@ -37,6 +44,10 @@ const handleClientCommand = (command: ClientCommand) => {
           () => {
             placeCommandQueue.push(command);
             const placeItemCommands = mergePlaceItemCommand(placeCommandQueue);
+            const { isFinish, winner } = updateBoardAndCheckWin(
+              board,
+              placeItemCommands,
+            );
             wss.clients.forEach((client) => {
               client.send(JSON.stringify(placeItemCommands));
             });
