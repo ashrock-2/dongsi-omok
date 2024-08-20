@@ -10,7 +10,15 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     <meta name="generator" content={Astro.generator} />
     <title>동시오목</title>
   </head>
-  <body>
+  <body
+    style={{
+      background: 'linear-gradient(180deg, hsl(0, 0%, 11%), hsl(345, 83%, 7%))',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: 'calc(100dvh - 16px)',
+    }}
+  >
     <div class="board">
       {
         Array.from({ length: BOARD_SIZE }, (_, i) => i).map((row) =>
@@ -27,14 +35,18 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
   </body>
   <style define:vars={{ boardSize: BOARD_SIZE }}>
     .board {
-      width: 500px;
-      height: 500px;
+      width: 100%;
+      max-width: 768px;
+      aspect-ratio: 1;
       display: grid;
       grid-template-columns: repeat(var(--boardSize), 1fr);
       grid-template-rows: repeat(var(--boardSize), 1fr);
       background-color: burlywood;
+      border-radius: 8px;
     }
     button {
+      margin: 0;
+      padding: 0;
       background-color: transparent;
       border: none;
       position: relative;

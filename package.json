@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev:client": "pnpm --filter front-end exec astro dev",
+    "dev:client": "pnpm --filter front-end exec astro dev --host",
     "dev:server": "pnpm --filter back-end exec pnpm nodemon",
     "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,css,html,astro}\""
   },
