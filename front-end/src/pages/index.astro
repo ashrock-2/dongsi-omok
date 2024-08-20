@@ -19,6 +19,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       height: 'calc(100dvh - 16px)',
     }}
   >
+    <p class="notification">상대방을 기다리고 있습니다.</p>
     <div class="board">
       {
         Array.from({ length: BOARD_SIZE }, (_, i) => i).map((row) =>
@@ -34,9 +35,28 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     </div>
   </body>
   <style define:vars={{ boardSize: BOARD_SIZE }}>
+    @font-face {
+      font-family: 'IropkeBatang';
+      src:
+        url('/fonts/IropkeBatangM.woff') format('woff'),
+        url('/fonts/IropkeBatangM.ttf') format('truetype');
+      font-display: block;
+    }
+    body {
+      font-family: 'IropkeBatang', sans-serif;
+    }
+    .notification {
+      background-color: hsla(0, 0%, 0%, 25%);
+      padding: 8px 6px;
+      border-radius: 6px;
+      z-index: 1;
+      color: hsl(0, 47%, 98%);
+      position: fixed;
+    }
+
     .board {
       width: 100%;
-      max-width: 768px;
+      max-width: 600px;
       aspect-ratio: 1;
       display: grid;
       grid-template-columns: repeat(var(--boardSize), 1fr);
