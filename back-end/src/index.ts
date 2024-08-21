@@ -65,7 +65,25 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
       rooms.set(roomId, [ws]);
       // ws.send(JSON.stringify()); 생성된 roomId 전달
     })
-    .with({ id: 'JOIN_ROOM' }, () => {})
+    .with(
+      { id: 'JOIN_ROOM' },
+      ({ payload: { roomId } }: ClientCommandType<'JOIN_ROOM'>) => {
+        const room = rooms.get(roomId);
+        match(room)
+          .when(
+            (room) => room === undefined,
+            () => {
+              // 존재하지 않는 방 서버 커맨드 보냄.
+            },
+          )
+          .when(
+            (room) => room.length === 1,
+            (room) => {
+              room.push(ws);
+            },
+          );
+      },
+    )
     .exhaustive();
 };
 
