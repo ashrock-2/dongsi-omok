@@ -18,11 +18,11 @@ export const getCommandQueueState = (placeCommandQueue: PlaceCommandQueue) =>
       () => 'EMPTY',
     )
     .when(
-      (queue) => queue.length === 1 && queue[0].player === 'white',
+      (queue) => queue.length === 1 && queue[0].payload.item === 'white',
       () => 'WHITE',
     )
     .when(
-      (queue) => queue.length === 1 && queue[0].player === 'black',
+      (queue) => queue.length === 1 && queue[0].payload.item === 'black',
       () => 'BLACK',
     )
     .when(
@@ -316,3 +316,5 @@ export const checkIsWin = (board: Board, row: number, col: number) => {
   }
   return false;
 };
+
+export const generateRoomId = () => Math.random().toString(36).substring(2, 9);

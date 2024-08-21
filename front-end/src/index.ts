@@ -1,7 +1,4 @@
 import {
-  BOARD_SIZE,
-  type Board,
-  ALPHABETS,
   type Player,
   makeClientCommand,
   isValidServerCommand,
@@ -14,9 +11,6 @@ import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
 /** 웹소켓 */
 const socket = new WebSocket('ws://localhost:8080');
-const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
-  Array.from({ length: BOARD_SIZE }, (__) => null),
-);
 let player: Player | null = null;
 let gameState: GameState = 'WAITING_FOR_OPPONENT';
 
@@ -39,14 +33,11 @@ document.querySelector('.board')?.addEventListener('click', (e) => {
   socket.send(
     JSON.stringify(
       makeClientCommand('PLACE_ITEM', {
-        player,
         payload: { item: player, row, col },
       }),
     ),
   );
   place_a_item(button, 'plan');
-  board[Number(row)][ALPHABETS.findIndex((alphabet) => alphabet === col)] =
-    'plan';
   gameState = 'AWAIT_MOVE';
 });
 
@@ -58,9 +49,6 @@ const handleServerCommand = (command: ServerCommand) => {
           payload: [{ item, row, col }],
         } = command;
         place_a_item(find_item_in_board(row, col), item);
-        board[Number(row)][
-          ALPHABETS.findIndex((alphabet) => alphabet === col)
-        ] = item;
       } else {
         const {
           payload: [
@@ -69,14 +57,7 @@ const handleServerCommand = (command: ServerCommand) => {
           ],
         } = command;
         place_a_item(find_item_in_board(row1, col1), item1);
-        board[Number(row1)][
-          ALPHABETS.findIndex((alphabet) => alphabet === col1)
-        ] = item1;
-
         place_a_item(find_item_in_board(row2, col2), item2);
-        board[Number(row2)][
-          ALPHABETS.findIndex((alphabet) => alphabet === col2)
-        ] = item2;
       }
       gameState = 'IN_PROGRESS';
     })
@@ -95,15 +76,36 @@ const handleServerCommand = (command: ServerCommand) => {
 
 socket.onopen = (e) => {
   console.log(e);
-};
-socket.onmessage = (event) => {
-  try {
-    const parsedMessage = JSON.parse(event.data.toString());
-    console.log(parsedMessage);
-    if (isValidServerCommand(parsedMessage)) {
-      handleServerCommand(parsedMessage);
-    }
-  } catch (err) {
-    console.error('Failed to parse message', err);
+  const searchParams = new URLSearchParams(window.location.search);
+  const roomId = searchParams.get('roomId');
+  if (!roomId) {
+    // room 생성 ClientCommand
+    socket.send(
+      JSON.stringify(
+        makeClientCommand('CREATE_ROOM', {
+          payload: {},
+        }),
+      ),
+    );
+  } else {
+    // room 참가 ClientCommand
+    socket.send(
+      JSON.stringify(
+        makeClientCommand('JOIN_ROOM', {
+          payload: { roomId },
+        }),
+      ),
+    );
   }
+  socket.onmessage = (event) => {
+    try {
+      const parsedMessage = JSON.parse(event.data.toString());
+      console.log(parsedMessage);
+      if (isValidServerCommand(parsedMessage)) {
+        handleServerCommand(parsedMessage);
+      }
+    } catch (err) {
+      console.error('Failed to parse message', err);
+    }
+  };
 };

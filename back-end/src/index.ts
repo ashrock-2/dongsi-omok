@@ -8,9 +8,10 @@ import {
 } from '@dongsi-omok/shared';
 import { createServer } from 'http';
 import { match } from 'ts-pattern';
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import {
   checkIsWin,
+  generateRoomId,
   getCommandQueueState,
   mergePlaceItemCommand,
   updateBoardAndCheckWin,
@@ -22,25 +23,26 @@ const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
   Array.from({ length: BOARD_SIZE }, (__) => null),
 );
 const placeCommandQueue: PlaceCommandQueue = [];
+const rooms: Map<string, Array<WebSocket>> = new Map();
 
-const handleClientCommand = (command: ClientCommand) => {
+const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
   console.log(placeCommandQueue);
   match(command)
     .with({ id: 'PLACE_ITEM' }, (command: ClientCommandType<'PLACE_ITEM'>) => {
       match({
         queueState: getCommandQueueState(placeCommandQueue),
-        player: command.player,
+        item: command.payload.item,
       })
         .with(
-          { queueState: 'EMPTY', player: 'black' },
-          { queueState: 'EMPTY', player: 'white' },
+          { queueState: 'EMPTY', item: 'black' },
+          { queueState: 'EMPTY', item: 'white' },
           () => {
             placeCommandQueue.push(command);
           },
         )
         .with(
-          { queueState: 'BLACK', player: 'white' },
-          { queueState: 'WHITE', player: 'black' },
+          { queueState: 'BLACK', item: 'white' },
+          { queueState: 'WHITE', item: 'black' },
           () => {
             placeCommandQueue.push(command);
             const placeItemCommands = mergePlaceItemCommand(placeCommandQueue);
@@ -54,17 +56,16 @@ const handleClientCommand = (command: ClientCommand) => {
             placeCommandQueue.length = 0;
           },
         )
-        .with(
-          { queueState: 'BLACK', player: 'black' },
-          { queueState: 'WHITE', player: 'white' },
-          { queueState: 'FULL', player: 'black' },
-          { queueState: 'FULL', player: 'white' },
-          () => {
-            // do nothing
-          },
-        )
-        .exhaustive();
+        .otherwise(() => {
+          // do nothing
+        });
     })
+    .with({ id: 'CREATE_ROOM' }, () => {
+      const roomId = generateRoomId();
+      rooms.set(roomId, [ws]);
+      // ws.send(JSON.stringify()); 생성된 roomId 전달
+    })
+    .with({ id: 'JOIN_ROOM' }, () => {})
     .exhaustive();
 };
 
@@ -101,7 +102,7 @@ wss.on('connection', (ws) => {
     try {
       const parsedMessage = JSON.parse(message.toString());
       if (isValidClientCommand(parsedMessage)) {
-        handleClientCommand(parsedMessage);
+        handleClientCommand(parsedMessage, ws);
       }
     } catch (err) {
       console.error('Failed to parse message', err);
