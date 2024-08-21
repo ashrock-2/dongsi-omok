@@ -29,18 +29,18 @@ const handleClientCommand = (command: ClientCommand) => {
     .with({ id: 'PLACE_ITEM' }, (command: ClientCommandType<'PLACE_ITEM'>) => {
       match({
         queueState: getCommandQueueState(placeCommandQueue),
-        player: command.player,
+        item: command.payload.item,
       })
         .with(
-          { queueState: 'EMPTY', player: 'black' },
-          { queueState: 'EMPTY', player: 'white' },
+          { queueState: 'EMPTY', item: 'black' },
+          { queueState: 'EMPTY', item: 'white' },
           () => {
             placeCommandQueue.push(command);
           },
         )
         .with(
-          { queueState: 'BLACK', player: 'white' },
-          { queueState: 'WHITE', player: 'black' },
+          { queueState: 'BLACK', item: 'white' },
+          { queueState: 'WHITE', item: 'black' },
           () => {
             placeCommandQueue.push(command);
             const placeItemCommands = mergePlaceItemCommand(placeCommandQueue);
@@ -54,17 +54,12 @@ const handleClientCommand = (command: ClientCommand) => {
             placeCommandQueue.length = 0;
           },
         )
-        .with(
-          { queueState: 'BLACK', player: 'black' },
-          { queueState: 'WHITE', player: 'white' },
-          { queueState: 'FULL', player: 'black' },
-          { queueState: 'FULL', player: 'white' },
-          () => {
-            // do nothing
-          },
-        )
-        .exhaustive();
+        .otherwise(() => {
+          // do nothing
+        });
     })
+    .with({ id: 'CREATE_ROOM' }, () => {})
+    .with({ id: 'JOIN_ROOM' }, () => {})
     .exhaustive();
 };
 

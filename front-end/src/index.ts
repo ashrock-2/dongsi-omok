@@ -33,7 +33,6 @@ document.querySelector('.board')?.addEventListener('click', (e) => {
   socket.send(
     JSON.stringify(
       makeClientCommand('PLACE_ITEM', {
-        player,
         payload: { item: player, row, col },
       }),
     ),
@@ -89,3 +88,17 @@ socket.onmessage = (event) => {
     console.error('Failed to parse message', err);
   }
 };
+
+const searchParams = new URLSearchParams(window.location.search);
+if (searchParams.has('roomId')) {
+  // room 생성 ClientCommand
+  socket.send(
+    JSON.stringify(
+      makeClientCommand('CREATE_ROOM', {
+        payload: {},
+      }),
+    ),
+  );
+} else {
+  // room 참가 ClientCommand
+}

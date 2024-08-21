@@ -2,11 +2,12 @@ import type { BoardItem, GameState, Player } from './common';
 
 export const ClientCommands = {
   PLACE_ITEM: 'PLACE_ITEM',
+  CREATE_ROOM: 'CREATE_ROOM',
+  JOIN_ROOM: 'JOIN_ROOM',
 } as const;
 export type KeyOfClientCommands = keyof typeof ClientCommands;
 export type ClientCommandType<COMMAND extends keyof typeof ClientCommands> = {
   id: COMMAND;
-  player: Player;
   playerId?: string;
   payload: ClientCommandPayloadRegistry[COMMAND];
 };
@@ -17,6 +18,10 @@ type ClientCommandPayloadMapType = {
     item: BoardItem;
     row: string;
     col: string;
+  };
+  [ClientCommands.CREATE_ROOM]: {};
+  [ClientCommands.JOIN_ROOM]: {
+    roomId: string;
   };
 };
 
@@ -40,18 +45,15 @@ export const isValidClientCommand = (
 export const makeClientCommand = <T extends KeyOfClientCommands>(
   id: T,
   {
-    player,
     playerId,
     payload,
   }: {
-    player: ClientCommand['player'];
     playerId?: ClientCommand['playerId'];
     payload: ClientCommandPayloadRegistry[T];
   },
 ) => {
   const command: ClientCommandType<T> = {
     id,
-    player,
     playerId,
     payload,
   };
