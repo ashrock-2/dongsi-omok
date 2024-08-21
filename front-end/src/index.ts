@@ -1,7 +1,4 @@
 import {
-  BOARD_SIZE,
-  type Board,
-  ALPHABETS,
   type Player,
   makeClientCommand,
   isValidServerCommand,
@@ -14,9 +11,6 @@ import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
 /** 웹소켓 */
 const socket = new WebSocket('ws://localhost:8080');
-const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
-  Array.from({ length: BOARD_SIZE }, (__) => null),
-);
 let player: Player | null = null;
 let gameState: GameState = 'WAITING_FOR_OPPONENT';
 
@@ -45,8 +39,6 @@ document.querySelector('.board')?.addEventListener('click', (e) => {
     ),
   );
   place_a_item(button, 'plan');
-  board[Number(row)][ALPHABETS.findIndex((alphabet) => alphabet === col)] =
-    'plan';
   gameState = 'AWAIT_MOVE';
 });
 
@@ -58,9 +50,6 @@ const handleServerCommand = (command: ServerCommand) => {
           payload: [{ item, row, col }],
         } = command;
         place_a_item(find_item_in_board(row, col), item);
-        board[Number(row)][
-          ALPHABETS.findIndex((alphabet) => alphabet === col)
-        ] = item;
       } else {
         const {
           payload: [
@@ -69,14 +58,7 @@ const handleServerCommand = (command: ServerCommand) => {
           ],
         } = command;
         place_a_item(find_item_in_board(row1, col1), item1);
-        board[Number(row1)][
-          ALPHABETS.findIndex((alphabet) => alphabet === col1)
-        ] = item1;
-
         place_a_item(find_item_in_board(row2, col2), item2);
-        board[Number(row2)][
-          ALPHABETS.findIndex((alphabet) => alphabet === col2)
-        ] = item2;
       }
       gameState = 'IN_PROGRESS';
     })
