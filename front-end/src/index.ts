@@ -76,29 +76,36 @@ const handleServerCommand = (command: ServerCommand) => {
 
 socket.onopen = (e) => {
   console.log(e);
-};
-socket.onmessage = (event) => {
-  try {
-    const parsedMessage = JSON.parse(event.data.toString());
-    console.log(parsedMessage);
-    if (isValidServerCommand(parsedMessage)) {
-      handleServerCommand(parsedMessage);
-    }
-  } catch (err) {
-    console.error('Failed to parse message', err);
+  const searchParams = new URLSearchParams(window.location.search);
+  const roomId = searchParams.get('roomId');
+  if (!roomId) {
+    // room 생성 ClientCommand
+    socket.send(
+      JSON.stringify(
+        makeClientCommand('CREATE_ROOM', {
+          payload: {},
+        }),
+      ),
+    );
+  } else {
+    // room 참가 ClientCommand
+    socket.send(
+      JSON.stringify(
+        makeClientCommand('JOIN_ROOM', {
+          payload: { roomId },
+        }),
+      ),
+    );
   }
+  socket.onmessage = (event) => {
+    try {
+      const parsedMessage = JSON.parse(event.data.toString());
+      console.log(parsedMessage);
+      if (isValidServerCommand(parsedMessage)) {
+        handleServerCommand(parsedMessage);
+      }
+    } catch (err) {
+      console.error('Failed to parse message', err);
+    }
+  };
 };
-
-const searchParams = new URLSearchParams(window.location.search);
-if (searchParams.has('roomId')) {
-  // room 생성 ClientCommand
-  socket.send(
-    JSON.stringify(
-      makeClientCommand('CREATE_ROOM', {
-        payload: {},
-      }),
-    ),
-  );
-} else {
-  // room 참가 ClientCommand
-}

@@ -8,9 +8,10 @@ import {
 } from '@dongsi-omok/shared';
 import { createServer } from 'http';
 import { match } from 'ts-pattern';
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import {
   checkIsWin,
+  generateRoomId,
   getCommandQueueState,
   mergePlaceItemCommand,
   updateBoardAndCheckWin,
@@ -22,8 +23,9 @@ const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
   Array.from({ length: BOARD_SIZE }, (__) => null),
 );
 const placeCommandQueue: PlaceCommandQueue = [];
+const rooms: Map<string, Array<WebSocket>> = new Map();
 
-const handleClientCommand = (command: ClientCommand) => {
+const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
   console.log(placeCommandQueue);
   match(command)
     .with({ id: 'PLACE_ITEM' }, (command: ClientCommandType<'PLACE_ITEM'>) => {
@@ -58,7 +60,11 @@ const handleClientCommand = (command: ClientCommand) => {
           // do nothing
         });
     })
-    .with({ id: 'CREATE_ROOM' }, () => {})
+    .with({ id: 'CREATE_ROOM' }, () => {
+      const roomId = generateRoomId();
+      rooms.set(roomId, [ws]);
+      // ws.send(JSON.stringify()); 생성된 roomId 전달
+    })
     .with({ id: 'JOIN_ROOM' }, () => {})
     .exhaustive();
 };
@@ -96,7 +102,7 @@ wss.on('connection', (ws) => {
     try {
       const parsedMessage = JSON.parse(message.toString());
       if (isValidClientCommand(parsedMessage)) {
-        handleClientCommand(parsedMessage);
+        handleClientCommand(parsedMessage, ws);
       }
     } catch (err) {
       console.error('Failed to parse message', err);

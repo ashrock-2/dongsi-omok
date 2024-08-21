@@ -316,3 +316,5 @@ export const checkIsWin = (board: Board, row: number, col: number) => {
   }
   return false;
 };
+
+export const generateRoomId = () => Math.random().toString(36).substring(2, 9);
