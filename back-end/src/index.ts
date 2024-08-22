@@ -10,10 +10,11 @@ import { createServer } from 'http';
 import { match } from 'ts-pattern';
 import { WebSocketServer, WebSocket } from 'ws';
 import {
-  checkIsWin,
+  findRoomIdByWs,
   generateRoomId,
   getCommandQueueState,
   mergePlaceItemCommand,
+  removeWsFromRoom,
   updateBoardAndCheckWin,
   type PlaceCommandQueue,
 } from './util';
@@ -49,7 +50,7 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
               board,
               placeItemCommands,
             );
-            const roomId = findRoomIdByWs(ws);
+            const roomId = findRoomIdByWs(ws, rooms);
             if (!roomId) {
               return;
             }
@@ -144,9 +145,9 @@ wss.on('connection', (ws) => {
   });
 
   ws.on('close', () => {
-    const roomId = findRoomIdByWs(ws);
+    const roomId = findRoomIdByWs(ws, rooms);
     if (roomId) {
-      removeWsFromRoom(roomId, ws);
+      removeWsFromRoom(roomId, ws, rooms);
     }
   });
 });
@@ -154,26 +155,3 @@ wss.on('connection', (ws) => {
 server.listen(8080, () => {
   console.log('WebSocket server is listening on port 8080');
 });
-
-const findRoomIdByWs = (ws: WebSocket) => {
-  for (const [roomId, room] of rooms.entries()) {
-    const idx = room.findIndex((roomWs) => roomWs === ws);
-    if (idx !== -1) {
-      return roomId;
-    }
-  }
-  return null;
-};
-
-const removeWsFromRoom = (roomId: string, ws: WebSocket) => {
-  const room = rooms.get(roomId);
-  if (!room) return;
-
-  const idx = room.findIndex((roomWs) => roomWs === ws);
-  if (idx !== -1) {
-    room.splice(idx, 1);
-  }
-  if (room.length === 0) {
-    rooms.delete(roomId);
-  }
-};

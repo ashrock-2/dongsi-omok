@@ -7,6 +7,7 @@ import {
   type ServerCommandType,
 } from '@dongsi-omok/shared';
 import { match } from 'ts-pattern';
+import type WebSocket from 'ws';
 
 export type PlaceCommandQueue = Array<ClientCommandType<'PLACE_ITEM'>>;
 
@@ -318,3 +319,32 @@ export const checkIsWin = (board: Board, row: number, col: number) => {
 };
 
 export const generateRoomId = () => Math.random().toString(36).substring(2, 9);
+export const findRoomIdByWs = (
+  ws: WebSocket,
+  rooms: Map<string, Array<WebSocket>>,
+) => {
+  for (const [roomId, room] of rooms.entries()) {
+    const idx = room.findIndex((roomWs) => roomWs === ws);
+    if (idx !== -1) {
+      return roomId;
+    }
+  }
+  return null;
+};
+
+export const removeWsFromRoom = (
+  roomId: string,
+  ws: WebSocket,
+  rooms: Map<string, Array<WebSocket>>,
+) => {
+  const room = rooms.get(roomId);
+  if (!room) return;
+
+  const idx = room.findIndex((roomWs) => roomWs === ws);
+  if (idx !== -1) {
+    room.splice(idx, 1);
+  }
+  if (room.length === 0) {
+    rooms.delete(roomId);
+  }
+};
