@@ -79,6 +79,25 @@ const handleServerCommand = (command: ServerCommand) => {
         // TODO: roomId가 결합된 URL을 공유 URL로써 화면에 표기
       },
     )
+    .with(
+      { id: 'NOTIFY_WINNER' },
+      (command: ServerCommandType<'NOTIFY_WINNER'>) => {
+        match(command.payload)
+          .with(
+            { isFinish: true, winner: 'black' },
+            { isFinish: true, winner: 'white' },
+            ({ winner }) => {
+              alert(`${winner} is winner`);
+            },
+          )
+          .with({ isFinish: true, winner: null }, () => {
+            alert('draw!');
+          })
+          .otherwise(() => {
+            // do nothing
+          });
+      },
+    )
     .exhaustive();
 };
 

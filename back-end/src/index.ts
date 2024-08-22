@@ -49,8 +49,23 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
               board,
               placeItemCommands,
             );
-            wss.clients.forEach((client) => {
+            const roomId = findRoomIdByWs(ws);
+            if (!roomId) {
+              return;
+            }
+            const room = rooms.get(roomId);
+            if (!room) {
+              return;
+            }
+            room.forEach((client) => {
               client.send(JSON.stringify(placeItemCommands));
+              client.send(
+                JSON.stringify(
+                  makeServerCommand('NOTIFY_WINNER', {
+                    payload: { isFinish, winner },
+                  }),
+                ),
+              );
             });
             placeCommandQueue.length = 0;
           },
@@ -76,7 +91,8 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
           .when(
             (room) => room === undefined,
             () => {
-              // 존재하지 않는 방 서버 커맨드 보냄.
+              ws.send(JSON.stringify('no room with that id'));
+              ws.close();
             },
           )
           .when(

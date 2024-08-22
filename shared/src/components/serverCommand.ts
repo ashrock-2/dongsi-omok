@@ -5,6 +5,7 @@ export const ServerCommands = {
   SET_PLAYER_COLOR: 'SET_PLAYER_COLOR',
   START_GAME: 'START_GAME',
   SEND_ROOM_ID: 'SEND_ROOM_ID',
+  NOTIFY_WINNER: 'NOTIFY_WINNER',
 } as const;
 export type KeyOfServerCommands = keyof typeof ServerCommands;
 export type ServerCommandType<COMMAND extends keyof typeof ServerCommands> = {
@@ -25,6 +26,10 @@ type ServerCommandPayloadMapType = {
   [ServerCommands.START_GAME]: {};
   [ServerCommands.SEND_ROOM_ID]: {
     roomId: string;
+  };
+  [ServerCommands.NOTIFY_WINNER]: {
+    isFinish: boolean;
+    winner: BoardItem | null;
   };
 };
 
