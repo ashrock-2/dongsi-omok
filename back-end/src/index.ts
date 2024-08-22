@@ -26,7 +26,6 @@ const placeCommandQueue: PlaceCommandQueue = [];
 const rooms: Map<string, Array<WebSocket>> = new Map();
 
 const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
-  console.log(placeCommandQueue);
   match(command)
     .with({ id: 'PLACE_ITEM' }, (command: ClientCommandType<'PLACE_ITEM'>) => {
       match({
@@ -129,10 +128,36 @@ wss.on('connection', (ws) => {
   });
 
   ws.on('close', () => {
-    console.log('Client disconnected');
+    const roomId = findRoomIdByWs(ws);
+    if (roomId) {
+      removeWsFromRoom(roomId, ws);
+    }
   });
 });
 
 server.listen(8080, () => {
   console.log('WebSocket server is listening on port 8080');
 });
+
+const findRoomIdByWs = (ws: WebSocket) => {
+  for (const [roomId, room] of rooms.entries()) {
+    const idx = room.findIndex((roomWs) => roomWs === ws);
+    if (idx !== -1) {
+      return roomId;
+    }
+  }
+  return null;
+};
+
+const removeWsFromRoom = (roomId: string, ws: WebSocket) => {
+  const room = rooms.get(roomId);
+  if (!room) return;
+
+  const idx = room.findIndex((roomWs) => roomWs === ws);
+  if (idx !== -1) {
+    room.splice(idx, 1);
+  }
+  if (room.length === 0) {
+    rooms.delete(roomId);
+  }
+};
