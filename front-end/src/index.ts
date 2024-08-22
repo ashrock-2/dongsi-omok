@@ -71,6 +71,14 @@ const handleServerCommand = (command: ServerCommand) => {
     .with({ id: 'START_GAME' }, () => {
       gameState = 'IN_PROGRESS';
     })
+    .with(
+      { id: 'SEND_ROOM_ID' },
+      (command: ServerCommandType<'SEND_ROOM_ID'>) => {
+        const { roomId } = command.payload;
+        console.log(roomId);
+        // TODO: roomId가 결합된 URL을 공유 URL로써 화면에 표기
+      },
+    )
     .exhaustive();
 };
 

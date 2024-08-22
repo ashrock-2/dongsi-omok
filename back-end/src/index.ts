@@ -63,7 +63,11 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
     .with({ id: 'CREATE_ROOM' }, () => {
       const roomId = generateRoomId();
       rooms.set(roomId, [ws]);
-      // ws.send(JSON.stringify()); 생성된 roomId 전달
+      ws.send(
+        JSON.stringify(
+          makeServerCommand('SEND_ROOM_ID', { payload: { roomId } }),
+        ),
+      );
     })
     .with(
       { id: 'JOIN_ROOM' },
@@ -80,42 +84,39 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
             (room) => room.length === 1,
             (room) => {
               room.push(ws);
+              room.forEach((ws, idx) => {
+                ws.send(
+                  JSON.stringify(
+                    makeServerCommand('SET_PLAYER_COLOR', {
+                      payload: { color: idx === 0 ? 'black' : 'white' },
+                    }),
+                  ),
+                );
+                ws.send(
+                  JSON.stringify(
+                    makeServerCommand('START_GAME', { payload: {} }),
+                  ),
+                );
+              });
             },
-          );
+          )
+          .when(
+            (room) => room.length >= 2,
+            () => {
+              ws.send(JSON.stringify('You are not allowed.'));
+              ws.close();
+            },
+          )
+          .otherwise(() => {
+            ws.send(JSON.stringify('You are not allowed.'));
+            ws.close();
+          });
       },
     )
     .exhaustive();
 };
 
 wss.on('connection', (ws) => {
-  match(wss.clients.size)
-    .with(1, () =>
-      ws.send(
-        JSON.stringify(
-          makeServerCommand('SET_PLAYER_COLOR', {
-            payload: { color: 'black' },
-          }),
-        ),
-      ),
-    )
-    .with(2, () => {
-      wss.clients.forEach((client) =>
-        client.send(
-          JSON.stringify(makeServerCommand('START_GAME', { payload: {} })),
-        ),
-      );
-      ws.send(
-        JSON.stringify(
-          makeServerCommand('SET_PLAYER_COLOR', {
-            payload: { color: 'white' },
-          }),
-        ),
-      );
-    })
-    .otherwise(() => {
-      ws.send(JSON.stringify('You are not allowed.'));
-      ws.close();
-    });
   ws.on('message', (message) => {
     try {
       const parsedMessage = JSON.parse(message.toString());
