@@ -16,50 +16,45 @@ import {
   mergePlaceItemCommand,
   removeWsFromRoom,
   updateBoardAndCheckWin,
-  type PlaceCommandQueue,
+  type Rooms,
 } from './util';
 const server = createServer();
 const wss = new WebSocketServer({ server });
 const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
   Array.from({ length: BOARD_SIZE }, (__) => null),
 );
-const placeCommandQueue: PlaceCommandQueue = [];
-const rooms: Map<string, Array<WebSocket>> = new Map();
+const rooms: Rooms = new Map();
 
 const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
   match(command)
     .with({ id: 'PLACE_ITEM' }, (command: ClientCommandType<'PLACE_ITEM'>) => {
+      const roomId = findRoomIdByWs(ws, rooms);
+      if (!roomId) return;
+      const room = rooms.get(roomId);
+      if (!room) return;
       match({
-        queueState: getCommandQueueState(placeCommandQueue),
+        queueState: getCommandQueueState(room.queue),
         item: command.payload.item,
       })
         .with(
           { queueState: 'EMPTY', item: 'black' },
           { queueState: 'EMPTY', item: 'white' },
           () => {
-            placeCommandQueue.push(command);
+            room.queue.push(command);
           },
         )
         .with(
           { queueState: 'BLACK', item: 'white' },
           { queueState: 'WHITE', item: 'black' },
           () => {
-            placeCommandQueue.push(command);
-            const placeItemCommands = mergePlaceItemCommand(placeCommandQueue);
+            room.queue.push(command);
+            const placeItemCommand = mergePlaceItemCommand(room.queue);
             const { isFinish, winner } = updateBoardAndCheckWin(
               board,
-              placeItemCommands,
+              placeItemCommand,
             );
-            const roomId = findRoomIdByWs(ws, rooms);
-            if (!roomId) {
-              return;
-            }
-            const room = rooms.get(roomId);
-            if (!room) {
-              return;
-            }
-            room.forEach((client) => {
-              client.send(JSON.stringify(placeItemCommands));
+            room.clients.forEach((client) => {
+              client.send(JSON.stringify(placeItemCommand));
               client.send(
                 JSON.stringify(
                   makeServerCommand('NOTIFY_WINNER', {
@@ -68,7 +63,7 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
                 ),
               );
             });
-            placeCommandQueue.length = 0;
+            room.queue.length = 0;
           },
         )
         .otherwise(() => {
@@ -77,7 +72,7 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
     })
     .with({ id: 'CREATE_ROOM' }, () => {
       const roomId = generateRoomId();
-      rooms.set(roomId, [ws]);
+      rooms.set(roomId, { clients: [ws], queue: [] });
       ws.send(
         JSON.stringify(
           makeServerCommand('SEND_ROOM_ID', { payload: { roomId } }),
@@ -97,10 +92,10 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
             },
           )
           .when(
-            (room) => room.length === 1,
+            (room) => room.clients.length === 1,
             (room) => {
-              room.push(ws);
-              room.forEach((ws, idx) => {
+              room.clients.push(ws);
+              room.clients.forEach((ws, idx) => {
                 ws.send(
                   JSON.stringify(
                     makeServerCommand('SET_PLAYER_COLOR', {
@@ -117,7 +112,7 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
             },
           )
           .when(
-            (room) => room.length >= 2,
+            (room) => room.clients.length >= 2,
             () => {
               ws.send(JSON.stringify('You are not allowed.'));
               ws.close();

@@ -10,9 +10,13 @@ import { match } from 'ts-pattern';
 import type WebSocket from 'ws';
 
 export type PlaceCommandQueue = Array<ClientCommandType<'PLACE_ITEM'>>;
+export type Rooms = Map<
+  string,
+  { clients: Array<WebSocket>; queue: PlaceCommandQueue }
+>;
 
-export const getCommandQueueState = (placeCommandQueue: PlaceCommandQueue) =>
-  match(placeCommandQueue)
+export const getCommandQueueState = (queue: PlaceCommandQueue) =>
+  match(queue)
     .returnType<'EMPTY' | 'BLACK' | 'WHITE' | 'FULL'>()
     .when(
       (queue) => queue.length === 0,
@@ -32,8 +36,8 @@ export const getCommandQueueState = (placeCommandQueue: PlaceCommandQueue) =>
     )
     .otherwise(() => 'FULL');
 
-export const mergePlaceItemCommand = (placeCommandQueue: PlaceCommandQueue) =>
-  match(placeCommandQueue)
+export const mergePlaceItemCommand = (queue: PlaceCommandQueue) =>
+  match(queue)
     .when(
       ([command1, command2]) =>
         command1.payload.row === command2.payload.row &&
@@ -319,12 +323,9 @@ export const checkIsWin = (board: Board, row: number, col: number) => {
 };
 
 export const generateRoomId = () => Math.random().toString(36).substring(2, 9);
-export const findRoomIdByWs = (
-  ws: WebSocket,
-  rooms: Map<string, Array<WebSocket>>,
-) => {
+export const findRoomIdByWs = (ws: WebSocket, rooms: Rooms) => {
   for (const [roomId, room] of rooms.entries()) {
-    const idx = room.findIndex((roomWs) => roomWs === ws);
+    const idx = room.clients.findIndex((client) => client === ws);
     if (idx !== -1) {
       return roomId;
     }
@@ -335,16 +336,16 @@ export const findRoomIdByWs = (
 export const removeWsFromRoom = (
   roomId: string,
   ws: WebSocket,
-  rooms: Map<string, Array<WebSocket>>,
+  rooms: Rooms,
 ) => {
   const room = rooms.get(roomId);
   if (!room) return;
 
-  const idx = room.findIndex((roomWs) => roomWs === ws);
+  const idx = room.clients.findIndex((client) => client === ws);
   if (idx !== -1) {
-    room.splice(idx, 1);
+    room.clients.splice(idx, 1);
   }
-  if (room.length === 0) {
+  if (room.clients.length === 0) {
     rooms.delete(roomId);
   }
 };
