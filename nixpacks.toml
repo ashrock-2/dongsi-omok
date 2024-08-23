@@ -1,0 +1,12 @@
+[phases.setup]
+  nodejs = "18"
+  pnpm = "8_x"
+
+[phases.install]
+  command = "pnpm install --no-frozen-lockfile"
+
+[phases.build]
+  command = "pnpm run build"
+
+[phases.start]
+  command = "pnpm run start"
