@@ -5,7 +5,8 @@
   "scripts": {
     "dev:client": "pnpm --filter front-end exec astro dev --host",
     "dev:server": "pnpm --filter back-end exec pnpm nodemon",
-    "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,css,html,astro}\""
+    "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,css,html,astro}\"",
+    "start": "concurrently \"pnpm dev:client\" \"pnpm dev:server\""
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,7 @@
     "shared"
   ],
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1"
   }

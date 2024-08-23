@@ -10,7 +10,15 @@ import {
 import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
 /** 웹소켓 */
-const socket = new WebSocket('ws://localhost:8080');
+const isLocalhost = window.location.hostname === 'localhost';
+
+// 로컬 환경일 때 ws://localhost:8080/ws 사용
+const wsProtocol = isLocalhost ? 'ws' : 'wss';
+const wsPort = isLocalhost ? '8080' : window.location.port;
+const wsHost = isLocalhost ? 'localhost' : window.location.hostname;
+
+const socket = new WebSocket(`${wsProtocol}://${wsHost}:${wsPort}/ws`);
+
 let player: Player | null = null;
 let gameState: GameState = 'WAITING_FOR_OPPONENT';
 
