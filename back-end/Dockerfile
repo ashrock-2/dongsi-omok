@@ -20,9 +20,9 @@ WORKDIR /app
 # bun 설치
 RUN curl -fsSL https://bun.sh/install | bash
 
-# 백엔드 소스 코드 복사
+# 백엔드 소스 코드 및 shared/src 디렉토리 복사
 COPY ./src ./src
-COPY ../shared ./shared
+COPY ../shared/src ./shared/src
 
 # 환경 변수 설정 (옵션)
 ENV PORT=8080
