@@ -22,7 +22,7 @@ RUN curl -fsSL https://bun.sh/install | bash
 
 # 백엔드 소스 코드 복사
 COPY ./src ./src
-COPY ./shared ../shared
+COPY ../shared ./shared
 
 # 환경 변수 설정 (옵션)
 ENV PORT=8080
