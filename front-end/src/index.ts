@@ -9,14 +9,17 @@ import {
 } from '@dongsi-omok/shared';
 import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
-/** 웹소켓 */
+
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
-console.log(backendUrl);
 const socket = new WebSocket(backendUrl);
-// const socket = new WebSocket(`${backendUrl}/ws`);
 
 let player: Player | null = null;
 let gameState: GameState = 'WAITING_FOR_OPPONENT';
+
+document.querySelector('.room-url')?.addEventListener('click', (e) => {
+  const p = e.target as HTMLParagraphElement;
+  navigator.clipboard.writeText(p.innerText);
+});
 
 document.querySelector('.board')?.addEventListener('click', (e) => {
   const button = e.target as HTMLButtonElement;
@@ -74,13 +77,23 @@ const handleServerCommand = (command: ServerCommand) => {
     )
     .with({ id: 'START_GAME' }, () => {
       gameState = 'IN_PROGRESS';
+      const notification = document.querySelector(
+        '.notification',
+      ) as HTMLParagraphElement;
+      if (notification) {
+        notification.remove();
+      }
     })
     .with(
       { id: 'SEND_ROOM_ID' },
       (command: ServerCommandType<'SEND_ROOM_ID'>) => {
         const { roomId } = command.payload;
-        console.log(roomId);
-        // TODO: roomId가 결합된 URL을 공유 URL로써 화면에 표기
+        const roomUrl = document.querySelector(
+          '.room-url',
+        ) as HTMLParagraphElement;
+        if (roomUrl) {
+          roomUrl.innerHTML = `https://dongsi-omok.vercel.app?roomId=${roomId}`;
+        }
       },
     )
     .with(
