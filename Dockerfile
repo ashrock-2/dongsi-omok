@@ -1,4 +1,4 @@
-# Base 이미지 설정
+# 베이스 이미지 설정
 FROM node:22.1.0 AS base
 
 # 작업 디렉토리 설정
@@ -21,10 +21,13 @@ COPY front-end/ ./front-end/
 RUN pnpm --filter front-end run build
 
 # 백엔드 실행 단계
-FROM bun:latest AS backend
+FROM node:22.1.0 AS backend
 
 # 작업 디렉토리 설정
 WORKDIR /app
+
+# bun 설치
+RUN curl -fsSL https://bun.sh/install | bash
 
 # 백엔드 소스 코드 복사
 COPY back-end/ ./back-end/
@@ -35,4 +38,4 @@ COPY --from=frontend /app/front-end/dist ./front-end/dist
 ENV PORT=8080
 
 # 백엔드 서버 시작 (bun으로 TypeScript 파일 직접 실행)
-CMD ["bun", "back-end/src/index.ts"]
+CMD ["bash", "-c", "~/.bun/bin/bun back-end/src/index.ts"]
