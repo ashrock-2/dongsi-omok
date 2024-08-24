@@ -14,13 +14,12 @@ RUN pnpm install --frozen-lockfile
 # 프론트엔드 빌드 단계
 FROM base AS frontend
 
-# 프론트엔드 소스 코드 복사
+# 프론트엔드와 shared 소스 코드 복사
 COPY front-end/ ./front-end/
+COPY shared/ ./shared/
 
-# 프론트엔드 의존성 설치
-RUN pnpm --filter front-end install
-
-# 프론트엔드 빌드
+# 프론트엔드 의존성 설치 및 빌드
+RUN pnpm install --filter front-end --filter shared --frozen-lockfile
 RUN pnpm --filter front-end run build
 
 # 백엔드 실행 단계
