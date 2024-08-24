@@ -10,8 +10,7 @@ import {
 import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
 /** 웹소켓 */
-const backendUrl =
-  import.meta.env.NEXT_PUBLIC_BACKEND_URL || 'ws://localhost:8080';
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
 console.log(backendUrl);
 const socket = new WebSocket(`${backendUrl}/ws`);
 
