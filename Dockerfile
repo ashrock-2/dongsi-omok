@@ -14,4 +14,11 @@ COPY . .
 RUN pnpm install --filter back-end --filter shared --frozen-lockfile
 
 # 백엔드 실행 단계
+# Bun 설치
+RUN curl -fsSL https://bun.sh/install | bash
+
+# 필요한 경로로 이동 (예: /root/.bun/bin)
+ENV PATH="/root/.bun/bin:$PATH"
+
+# 백엔드 실행
 CMD ["bun", "back-end/src/index.ts"]
