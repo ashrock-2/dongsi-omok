@@ -12,7 +12,8 @@ import { match } from 'ts-pattern';
 /** 웹소켓 */
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
 console.log(backendUrl);
-const socket = new WebSocket(`${backendUrl}/ws`);
+const socket = new WebSocket(backendUrl);
+// const socket = new WebSocket(`${backendUrl}/ws`);
 
 let player: Player | null = null;
 let gameState: GameState = 'WAITING_FOR_OPPONENT';
