@@ -26,13 +26,18 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     </p>
     <div class="board">
       {
-        Array.from({ length: BOARD_SIZE }, (_, i) => i).map((row) =>
-          ALPHABETS.slice(0, BOARD_SIZE).map((column) => (
+        Array.from({ length: BOARD_SIZE }, (_, row) =>
+          ALPHABETS.slice(0, BOARD_SIZE).map((col) => (
             <button
               data-row={row}
-              data-col={column}
-              aria-label={`row:${row + 1} col:${column}`}
-            />
+              data-col={col}
+              aria-label={`row:${row + 1} col:${col}`}
+            >
+              {(row === 3 || row === 9 || row === 15) &&
+              (col === 'D' || col === 'J' || col === 'P') ? (
+                <span class="flower-point" />
+              ) : null}
+            </button>
           )),
         )
       }
@@ -74,6 +79,18 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       background-color: burlywood;
       border-radius: 8px;
     }
+    .flower-point {
+      position: absolute;
+      width: 12.5%;
+      height: 12.5%;
+      background-color: black;
+      border-radius: 50%;
+      left: 52%;
+      top: 52%;
+      transform: translate(-52%, -52%);
+      padding: 0;
+      margin: 0;
+    }
     button {
       margin: 0;
       padding: 0;
@@ -88,6 +105,9 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
         border-radius: 50%;
         &.white {
           background-color: white;
+          .flower-point {
+            z-index: -2;
+          }
           &::before,
           &::after {
             z-index: -1;
