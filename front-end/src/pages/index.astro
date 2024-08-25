@@ -19,11 +19,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       height: 'calc(100dvh - 16px)',
     }}
   >
-    <p class="notification">
-      다음 주소를 상대방에게 공유해주세요.
-      <br />
-      <span class="room-url"></span>
-    </p>
+    <game-notification></game-notification>
     <div class="board">
       {
         Array.from({ length: BOARD_SIZE }, (_, row) =>
@@ -54,21 +50,6 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     body {
       font-family: 'IropkeBatang', sans-serif;
     }
-    .notification {
-      text-align: center;
-      background-color: hsla(0, 0%, 0%, 25%);
-      padding: 8px 6px;
-      border-radius: 6px;
-      z-index: 1;
-      color: hsl(0, 47%, 98%);
-      position: fixed;
-    }
-    .room-url {
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 1.25rem;
-    }
-
     .board {
       width: 100%;
       max-width: 600px;

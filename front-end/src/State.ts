@@ -4,6 +4,7 @@ class StateStore extends EventTarget {
   private static _instance: StateStore;
   private _player: Player | null = null;
   private _gameState: GameState = 'WAITING_FOR_OPPONENT';
+  private _roomId: string | null = null;
 
   constructor() {
     super();
@@ -31,6 +32,15 @@ class StateStore extends EventTarget {
 
   set gameState(val: GameState) {
     this._gameState = val;
+    this.dispatchEvent(new Event('stateChange'));
+  }
+
+  get roomId() {
+    return this._roomId;
+  }
+
+  set roomId(val: string | null) {
+    this._roomId = val;
     this.dispatchEvent(new Event('stateChange'));
   }
 }

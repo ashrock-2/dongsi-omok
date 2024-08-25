@@ -8,14 +8,10 @@ import {
 import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
 import { State } from './State';
+export { Notification } from './components/Notification';
 
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
 const socket = new WebSocket(backendUrl);
-
-document.querySelector('.room-url')?.addEventListener('click', (e) => {
-  const p = e.target as HTMLParagraphElement;
-  navigator.clipboard.writeText(p.innerText);
-});
 
 document.querySelector('.board')?.addEventListener('click', (e) => {
   const button = e.target as HTMLButtonElement;
@@ -26,7 +22,6 @@ document.querySelector('.board')?.addEventListener('click', (e) => {
     return;
   }
   if (ProhibitedGameStateForClientPlaceItem.includes(State.gameState)) {
-    console.log(State.gameState);
     console.log('wait for opponent');
     return;
   }
@@ -73,23 +68,12 @@ const handleServerCommand = (command: ServerCommand) => {
     )
     .with({ id: 'START_GAME' }, () => {
       State.gameState = 'IN_PROGRESS';
-      const notification = document.querySelector(
-        '.notification',
-      ) as HTMLParagraphElement;
-      if (notification) {
-        notification.remove();
-      }
     })
     .with(
       { id: 'SEND_ROOM_ID' },
       (command: ServerCommandType<'SEND_ROOM_ID'>) => {
         const { roomId } = command.payload;
-        const roomUrl = document.querySelector(
-          '.room-url',
-        ) as HTMLParagraphElement;
-        if (roomUrl) {
-          roomUrl.innerHTML = `https://dongsi-omok.vercel.app?roomId=${roomId}`;
-        }
+        State.roomId = roomId;
       },
     )
     .with(
