@@ -1,6 +1,7 @@
 import { match, P } from 'ts-pattern';
 import { State } from '../State';
 import type { GameState } from '@dongsi-omok/shared';
+import { applyParticleEffect } from './ParticleEffect';
 
 export class Notification extends HTMLElement {
   constructor() {
@@ -30,6 +31,7 @@ export class Notification extends HTMLElement {
         font-size: 1.25rem;
       }
       `;
+    applyParticleEffect(wrapper);
     this.shadowRoot?.append(style, wrapper);
     updateTextAndVisibility(wrapper);
     State.addEventListener('stateChange', () =>
@@ -38,9 +40,12 @@ export class Notification extends HTMLElement {
     wrapper.addEventListener('click', () => {
       const textToCopy = wrapper.querySelector('strong');
       if (textToCopy) {
-        copyText(textToCopy);
+        copyText(textToCopy).then(() => this.showCopyComplete());
       }
     });
+  }
+  private showCopyComplete() {
+    // TODO
   }
 }
 
@@ -49,9 +54,10 @@ const updateTextAndVisibility = (dom: HTMLElement) => {
   dom.style.display = getVisibility(State.gameState);
 };
 
-const copyText = (dom: HTMLElement) => {
-  navigator.clipboard.writeText(dom.innerText);
-};
+const copyText = (dom: HTMLElement) =>
+  new Promise<void>((resolve) =>
+    navigator.clipboard.writeText(dom.innerText).then(() => resolve()),
+  );
 
 const getText = (state: typeof State) =>
   match(state)
