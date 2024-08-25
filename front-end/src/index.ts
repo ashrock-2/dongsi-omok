@@ -1,20 +1,16 @@
 import {
-  type Player,
   makeClientCommand,
   isValidServerCommand,
   type ServerCommand,
   type ServerCommandType,
-  type GameState,
   ProhibitedGameStateForClientPlaceItem,
 } from '@dongsi-omok/shared';
 import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
+import { State } from './State';
 
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
 const socket = new WebSocket(backendUrl);
-
-let player: Player | null = null;
-let gameState: GameState = 'WAITING_FOR_OPPONENT';
 
 document.querySelector('.room-url')?.addEventListener('click', (e) => {
   const p = e.target as HTMLParagraphElement;
@@ -29,23 +25,23 @@ document.querySelector('.board')?.addEventListener('click', (e) => {
   if (!row || !col) {
     return;
   }
-  if (ProhibitedGameStateForClientPlaceItem.includes(gameState)) {
-    console.log(gameState);
+  if (ProhibitedGameStateForClientPlaceItem.includes(State.gameState)) {
+    console.log(State.gameState);
     console.log('wait for opponent');
     return;
   }
-  if (player === null) {
+  if (State.player === null) {
     return;
   }
   socket.send(
     JSON.stringify(
       makeClientCommand('PLACE_ITEM', {
-        payload: { item: player, row, col },
+        payload: { item: State.player, row, col },
       }),
     ),
   );
   place_a_item(button, 'plan');
-  gameState = 'AWAIT_MOVE';
+  State.gameState = 'AWAIT_MOVE';
 });
 
 const handleServerCommand = (command: ServerCommand) => {
@@ -66,17 +62,17 @@ const handleServerCommand = (command: ServerCommand) => {
         place_a_item(find_item_in_board(row1, col1), item1);
         place_a_item(find_item_in_board(row2, col2), item2);
       }
-      gameState = 'IN_PROGRESS';
+      State.gameState = 'IN_PROGRESS';
     })
     .with(
       { id: 'SET_PLAYER_COLOR' },
       (command: ServerCommandType<'SET_PLAYER_COLOR'>) => {
-        player = command.payload.color;
-        console.log(`you are ${player}`);
+        State.player = command.payload.color;
+        console.log(`you are ${State.player}`);
       },
     )
     .with({ id: 'START_GAME' }, () => {
-      gameState = 'IN_PROGRESS';
+      State.gameState = 'IN_PROGRESS';
       const notification = document.querySelector(
         '.notification',
       ) as HTMLParagraphElement;
