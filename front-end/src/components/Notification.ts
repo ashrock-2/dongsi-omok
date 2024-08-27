@@ -69,6 +69,7 @@ const getText = (state: typeof State) =>
       ({ roomId }) => `다음 주소를 상대방에게 공유해주세요.<br/>
       <strong>https://dongsi-omok.vercel.app?roomId=${roomId}</strong>`,
     )
+    .with({ gameState: 'GAME_OVER' }, () => `다시 시작?`)
     .with(
       {
         gameState: 'WAITING_FOR_OPPONENT',
@@ -81,6 +82,7 @@ const getText = (state: typeof State) =>
 const getVisibility = (state: GameState) =>
   match(state)
     .with('WAITING_FOR_OPPONENT', () => 'block' as const)
+    .with('GAME_OVER', () => 'block' as const)
     .otherwise(() => 'none' as const);
 
 customElements.define('game-notification', Notification);

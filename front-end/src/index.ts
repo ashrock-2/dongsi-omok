@@ -85,10 +85,12 @@ const handleServerCommand = (command: ServerCommand) => {
             { isFinish: true, winner: 'white' },
             ({ winner }) => {
               alert(`${winner} is winner`);
+              State.gameState = 'GAME_OVER';
             },
           )
           .with({ isFinish: true, winner: null }, () => {
             alert('draw!');
+            State.gameState = 'GAME_OVER';
           })
           .otherwise(() => {
             // do nothing
