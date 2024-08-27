@@ -49,16 +49,14 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
           () => {
             room.queue.push(command);
             const placeItemCommand = mergePlaceItemCommand(room.queue);
-            const { isFinish, winner } = updateBoardAndCheckWin(
-              board,
-              placeItemCommand,
-            );
+            const { isFinish, winner, winningCoordinates } =
+              updateBoardAndCheckWin(board, placeItemCommand);
             room.clients.forEach((client) => {
               client.send(JSON.stringify(placeItemCommand));
               client.send(
                 JSON.stringify(
                   makeServerCommand('NOTIFY_WINNER', {
-                    payload: { isFinish, winner },
+                    payload: { isFinish, winner, winningCoordinates },
                   }),
                 ),
               );

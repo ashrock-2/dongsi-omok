@@ -30,6 +30,7 @@ type ServerCommandPayloadMapType = {
   [ServerCommands.NOTIFY_WINNER]: {
     isFinish: boolean;
     winner: BoardItem | null;
+    winningCoordinates: Array<{ row: number; col: number }> | null;
   };
 };
 

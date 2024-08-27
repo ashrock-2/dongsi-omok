@@ -75,7 +75,6 @@ export const updateBoardAndCheckWin = (
   placeItemCommands: ServerCommandType<'PLACE_ITEM'>,
 ) =>
   match(placeItemCommands)
-    .returnType<{ isFinish: boolean; winner: BoardItem | null }>()
     .when(
       (commands) => commands.payload.length === 1,
       (commands) => {
@@ -83,11 +82,12 @@ export const updateBoardAndCheckWin = (
         const row = Number(_row);
         const col = ALPHABETS.findIndex((alphabet) => alphabet === _col);
 
-        board[row][col] = item;
-        if (checkIsWin(board, row, col)) {
-          return { isFinish: true, winner: item };
-        }
-        return { isFinish: false, winner: null };
+        const { isWin, winningCoordinates } = checkIsWin(board, row, col);
+        return {
+          isFinish: isWin,
+          winner: isWin ? board[row][col] : null,
+          winningCoordinates,
+        };
       },
     )
     .when(
@@ -105,221 +105,100 @@ export const updateBoardAndCheckWin = (
 
         board[row1][col1] = item1;
         board[row2][col2] = item2;
-        const isItem1Win = checkIsWin(board, row1, col1);
-        const isItem2Win = checkIsWin(board, row2, col2);
+        const { isWin: isItem1Win, winningCoordinates: winningCoordinates1 } =
+          checkIsWin(board, row1, col1);
+        const { isWin: isItem2Win, winningCoordinates: winningCoordinates2 } =
+          checkIsWin(board, row2, col2);
         return match({ isItem1Win, isItem2Win })
-          .returnType<{ isFinish: boolean; winner: BoardItem | null }>()
           .with({ isItem1Win: true, isItem2Win: false }, () => ({
             isFinish: true,
             winner: item1,
+            winningCoordinates: winningCoordinates1,
           }))
           .with({ isItem1Win: false, isItem2Win: true }, () => ({
             isFinish: true,
             winner: item2,
+            winningCoordinates: winningCoordinates2,
           }))
           .with({ isItem1Win: true, isItem2Win: true }, () => ({
             isFinish: true,
             winner: null,
+            winningCoordinates: [
+              ...winningCoordinates1!,
+              ...winningCoordinates2!,
+            ],
           }))
           .with({ isItem1Win: false, isItem2Win: false }, () => ({
             isFinish: false,
             winner: null,
+            winningCoordinates: null,
           }))
           .exhaustive();
       },
     )
-    .otherwise(() => ({ isFinish: false, winner: null }));
+    .otherwise(() => ({
+      isFinish: false,
+      winner: null,
+      winningCoordinates: null,
+    }));
 
-export const checkIsWin = (board: Board, row: number, col: number) => {
+export const checkIsWin = (
+  board: Board,
+  row: number,
+  col: number,
+): {
+  isWin: boolean;
+  winningCoordinates: Array<{ row: number; col: number }> | null;
+} => {
   const item = board[row][col];
   if (item === null || item === 'prohibit') {
-    return false;
+    return { isWin: false, winningCoordinates: null };
   }
-  /** row 오목 체크 */
-  if (
-    board[row - 4]?.[col] === item &&
-    board[row - 3]?.[col] === item &&
-    board[row - 2]?.[col] === item &&
-    board[row - 1]?.[col] === item &&
-    board[row]?.[col] === item
-  ) {
-    return true;
+
+  const directions = [
+    { dr: 1, dc: 0 }, // Vertical
+    { dr: 0, dc: 1 }, // Horizontal
+    { dr: 1, dc: 1 }, // Diagonal from top-left to bottom-right
+    { dr: 1, dc: -1 }, // Diagonal from bottom-left to top-right
+  ];
+
+  const checkDirection = (dr: number, dc: number) => {
+    let count = 1;
+    const coordinates = [{ row, col }];
+
+    for (let i = 1; i < 5; i++) {
+      const newRow = row + i * dr;
+      const newCol = col + i * dc;
+      if (board[newRow]?.[newCol] === item) {
+        count++;
+        coordinates.push({ row: newRow, col: newCol });
+      } else {
+        break;
+      }
+    }
+
+    for (let i = 1; i < 5; i++) {
+      const newRow = row - i * dr;
+      const newCol = col - i * dc;
+      if (board[newRow]?.[newCol] === item) {
+        count++;
+        coordinates.push({ row: newRow, col: newCol });
+      } else {
+        break;
+      }
+    }
+
+    return count >= 5 ? coordinates : null;
+  };
+
+  for (const { dr, dc } of directions) {
+    const winningCoordinates = checkDirection(dr, dc);
+    if (winningCoordinates) {
+      return { isWin: true, winningCoordinates };
+    }
   }
-  if (
-    board[row - 3]?.[col] === item &&
-    board[row - 2]?.[col] === item &&
-    board[row - 1]?.[col] === item &&
-    board[row]?.[col] === item &&
-    board[row + 1]?.[col] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row - 2]?.[col] === item &&
-    board[row - 1]?.[col] === item &&
-    board[row]?.[col] === item &&
-    board[row + 1]?.[col] === item &&
-    board[row + 2]?.[col] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row - 1]?.[col] === item &&
-    board[row]?.[col] === item &&
-    board[row + 1]?.[col] === item &&
-    board[row + 2]?.[col] === item &&
-    board[row + 3]?.[col] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row]?.[col] === item &&
-    board[row + 1]?.[col] === item &&
-    board[row + 2]?.[col] === item &&
-    board[row + 3]?.[col] === item &&
-    board[row + 4]?.[col] === item
-  ) {
-    return true;
-  }
-  /** col 오목 체크 */
-  if (
-    board[row][col - 4] === item &&
-    board[row][col - 3] === item &&
-    board[row][col - 2] === item &&
-    board[row][col - 1] === item &&
-    board[row][col] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row][col - 3] === item &&
-    board[row][col - 2] === item &&
-    board[row][col - 1] === item &&
-    board[row][col] === item &&
-    board[row][col + 1] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row][col - 2] === item &&
-    board[row][col - 1] === item &&
-    board[row][col] === item &&
-    board[row][col + 1] === item &&
-    board[row][col + 2] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row][col - 1] === item &&
-    board[row][col] === item &&
-    board[row][col + 1] === item &&
-    board[row][col + 2] === item &&
-    board[row][col + 3] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row][col] === item &&
-    board[row][col + 1] === item &&
-    board[row][col + 2] === item &&
-    board[row][col + 3] === item &&
-    board[row][col + 4] === item
-  ) {
-    return true;
-  }
-  /** 좌상단 -> 우하단 오목 */
-  if (
-    board[row - 4]?.[col - 4] === item &&
-    board[row - 3]?.[col - 3] === item &&
-    board[row - 2]?.[col - 2] === item &&
-    board[row - 1]?.[col - 1] === item &&
-    board[row][col] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row - 3]?.[col - 3] === item &&
-    board[row - 2]?.[col - 2] === item &&
-    board[row - 1]?.[col - 1] === item &&
-    board[row][col] === item &&
-    board[row + 1]?.[col + 1] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row - 2]?.[col - 2] === item &&
-    board[row - 1]?.[col - 1] === item &&
-    board[row][col] === item &&
-    board[row + 1]?.[col + 1] === item &&
-    board[row + 2]?.[col + 2] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row - 1]?.[col - 1] === item &&
-    board[row][col] === item &&
-    board[row + 1]?.[col + 1] === item &&
-    board[row + 2]?.[col + 2] === item &&
-    board[row + 3]?.[col + 3] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row][col] === item &&
-    board[row + 1]?.[col + 1] === item &&
-    board[row + 2]?.[col + 2] === item &&
-    board[row + 3]?.[col + 3] === item &&
-    board[row + 4]?.[col + 4] === item
-  ) {
-    return true;
-  }
-  /** 좌하단 -> 우상단 오목 */
-  if (
-    board[row + 4]?.[col - 4] === item &&
-    board[row + 3]?.[col - 3] === item &&
-    board[row + 2]?.[col - 2] === item &&
-    board[row + 1]?.[col - 1] === item &&
-    board[row][col] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row + 3]?.[col - 3] === item &&
-    board[row + 2]?.[col - 2] === item &&
-    board[row + 1]?.[col - 1] === item &&
-    board[row][col] === item &&
-    board[row - 1]?.[col + 1] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row + 2]?.[col - 2] === item &&
-    board[row + 1]?.[col - 1] === item &&
-    board[row][col] === item &&
-    board[row - 1]?.[col + 1] === item &&
-    board[row - 2]?.[col + 2] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row + 1]?.[col - 1] === item &&
-    board[row][col] === item &&
-    board[row - 1]?.[col + 1] === item &&
-    board[row - 2]?.[col + 2] === item &&
-    board[row - 3]?.[col + 3] === item
-  ) {
-    return true;
-  }
-  if (
-    board[row][col] === item &&
-    board[row - 1]?.[col + 1] === item &&
-    board[row - 2]?.[col + 2] === item &&
-    board[row - 3]?.[col + 3] === item &&
-    board[row - 4]?.[col + 4] === item
-  ) {
-    return true;
-  }
-  return false;
+
+  return { isWin: false, winningCoordinates: null };
 };
 
 export const generateRoomId = () => Math.random().toString(36).substring(2, 9);
