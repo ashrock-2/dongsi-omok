@@ -5,6 +5,7 @@ class StateStore extends EventTarget {
   private _player: Player | null = null;
   private _gameState: GameState = 'WAITING_FOR_OPPONENT';
   private _roomId: string | null = null;
+  private _winningCoordinates: Array<{ row: number; col: number }> = [];
 
   constructor() {
     super();
@@ -41,6 +42,15 @@ class StateStore extends EventTarget {
 
   set roomId(val: string | null) {
     this._roomId = val;
+    this.dispatchEvent(new Event('stateChange'));
+  }
+
+  get winningCoordinates() {
+    return this._winningCoordinates;
+  }
+
+  set winningCoordinates(val: Array<{ row: number; col: number }>) {
+    this._winningCoordinates = val;
     this.dispatchEvent(new Event('stateChange'));
   }
 }
