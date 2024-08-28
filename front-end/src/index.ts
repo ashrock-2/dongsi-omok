@@ -9,9 +9,10 @@ import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
 import { State } from './State';
 export { Notification } from './components/Notification';
+export { Board } from './components/Board';
 
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
-const socket = new WebSocket(backendUrl);
+State.socket = new WebSocket(backendUrl);
 
 document.querySelector('.board')?.addEventListener('click', (e) => {
   const button = e.target as HTMLButtonElement;
@@ -28,7 +29,7 @@ document.querySelector('.board')?.addEventListener('click', (e) => {
   if (State.player === null) {
     return;
   }
-  socket.send(
+  State.socket?.send(
     JSON.stringify(
       makeClientCommand('PLACE_ITEM', {
         payload: { item: State.player, row, col },
@@ -102,13 +103,13 @@ const handleServerCommand = (command: ServerCommand) => {
     .exhaustive();
 };
 
-socket.onopen = (e) => {
+State.socket.onopen = (e) => {
   console.log(e);
   const searchParams = new URLSearchParams(window.location.search);
   const roomId = searchParams.get('roomId');
   if (!roomId) {
     // room 생성 ClientCommand
-    socket.send(
+    State.socket?.send(
       JSON.stringify(
         makeClientCommand('CREATE_ROOM', {
           payload: {},
@@ -117,7 +118,7 @@ socket.onopen = (e) => {
     );
   } else {
     // room 참가 ClientCommand
-    socket.send(
+    State.socket?.send(
       JSON.stringify(
         makeClientCommand('JOIN_ROOM', {
           payload: { roomId },
@@ -125,7 +126,7 @@ socket.onopen = (e) => {
       ),
     );
   }
-  socket.onmessage = (event) => {
+  State.socket!.onmessage = (event) => {
     try {
       const parsedMessage = JSON.parse(event.data.toString());
       console.log(parsedMessage);
