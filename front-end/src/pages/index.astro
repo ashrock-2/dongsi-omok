@@ -37,9 +37,15 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
           )),
         )
       }
+      <div class="border-beam"></div>
     </omok-board>
   </body>
   <style define:vars={{ boardSize: BOARD_SIZE }}>
+    @keyframes border-beam {
+      100% {
+        offset-distance: 100%;
+      }
+    }
     @font-face {
       font-family: 'IropkeBatang';
       src:
@@ -59,6 +65,38 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       grid-template-rows: repeat(var(--boardSize), 1fr);
       background-color: burlywood;
       border-radius: 8px;
+      position: relative;
+    }
+    .border-beam {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+
+      border: 2px solid transparent;
+      border-radius: inherit;
+
+      mask-clip: padding-box, border-box !important;
+      mask-composite: intersect !important;
+      mask: linear-gradient(transparent, transparent),
+        linear-gradient(white, white);
+      &::after {
+        content: '';
+        width: 100%;
+        aspect-ratio: 1;
+        position: absolute;
+        background: linear-gradient(
+          to left,
+          hsl(60, 100%, 50%),
+          hsl(30, 100%, 50%),
+          transparent
+        );
+
+        animation: border-beam 6s infinite linear;
+        offset-anchor: 90% 50%;
+        offset-path: rect(0 auto auto 0 round 600px);
+      }
     }
     .flower-point {
       pointer-events: none;
