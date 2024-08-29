@@ -8,22 +8,6 @@ import { place_a_item } from '../utils';
 export class Board extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
-
-    const style = document.createElement('style');
-    style.textContent = `
-      :host {
-        width: 100%;
-        max-width: 600px;
-        aspect-ratio: 1;
-        display: grid;
-        grid-template-columns: repeat(var(--boardSize), 1fr);
-        grid-template-rows: repeat(var(--boardSize), 1fr);
-        background-color: burlywood;
-        border-radius: 8px;
-      }
-    `;
-    this.shadowRoot?.append(style);
 
     this.addEventListener('click', (e) => {
       const button = e.target as HTMLButtonElement;

@@ -20,7 +20,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     }}
   >
     <game-notification></game-notification>
-    <div class="board">
+    <omok-board>
       {
         Array.from({ length: BOARD_SIZE }, (_, row) =>
           ALPHABETS.slice(0, BOARD_SIZE).map((col) => (
@@ -37,7 +37,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
           )),
         )
       }
-    </div>
+    </omok-board>
   </body>
   <style define:vars={{ boardSize: BOARD_SIZE }}>
     @font-face {
@@ -50,7 +50,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     body {
       font-family: 'IropkeBatang', sans-serif;
     }
-    .board {
+    omok-board {
       width: 100%;
       max-width: 600px;
       aspect-ratio: 1;
