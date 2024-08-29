@@ -3,7 +3,6 @@ import {
   isValidServerCommand,
   type ServerCommand,
   type ServerCommandType,
-  ProhibitedGameStateForClientPlaceItem,
 } from '@dongsi-omok/shared';
 import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
@@ -13,32 +12,6 @@ export { Board } from './components/Board';
 
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
 State.socket = new WebSocket(backendUrl);
-
-document.querySelector('.board')?.addEventListener('click', (e) => {
-  const button = e.target as HTMLButtonElement;
-  const {
-    dataset: { row, col },
-  } = button;
-  if (!row || !col) {
-    return;
-  }
-  if (ProhibitedGameStateForClientPlaceItem.includes(State.gameState)) {
-    console.log('wait for opponent');
-    return;
-  }
-  if (State.player === null) {
-    return;
-  }
-  State.socket?.send(
-    JSON.stringify(
-      makeClientCommand('PLACE_ITEM', {
-        payload: { item: State.player, row, col },
-      }),
-    ),
-  );
-  place_a_item(button, 'plan');
-  State.gameState = 'AWAIT_MOVE';
-});
 
 const handleServerCommand = (command: ServerCommand) => {
   match(command)
