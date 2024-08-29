@@ -15,24 +15,15 @@ State.socket = new WebSocket(backendUrl);
 
 const handleServerCommand = (command: ServerCommand) => {
   match(command)
-    .with({ id: 'PLACE_ITEM' }, (command: ServerCommandType<'PLACE_ITEM'>) => {
-      if (command.payload.length === 1) {
-        const {
-          payload: [{ item, row, col }],
-        } = command;
-        place_a_item(find_item_in_board(row, col), item);
-      } else {
-        const {
-          payload: [
-            { item: item1, row: row1, col: col1 },
-            { item: item2, row: row2, col: col2 },
-          ],
-        } = command;
-        place_a_item(find_item_in_board(row1, col1), item1);
-        place_a_item(find_item_in_board(row2, col2), item2);
-      }
-      State.gameState = 'IN_PROGRESS';
-    })
+    .with(
+      { id: 'PLACE_ITEM' },
+      ({ payload }: ServerCommandType<'PLACE_ITEM'>) => {
+        payload.forEach(({ item, row, col }) =>
+          place_a_item(find_item_in_board(row, col), item),
+        );
+        State.gameState = 'IN_PROGRESS';
+      },
+    )
     .with(
       { id: 'SET_PLAYER_COLOR' },
       (command: ServerCommandType<'SET_PLAYER_COLOR'>) => {
