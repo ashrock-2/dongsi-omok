@@ -6,6 +6,7 @@ import { applyParticleEffect } from './ParticleEffect';
 const template = document.createElement('template');
 template.innerHTML = `
   <link rel="stylesheet" href="${new URL('./Notification.css', import.meta.url)}"></link>
+  <div class="snackbar"></div>
   <p>
     <span></span>
     <br/>
@@ -35,7 +36,15 @@ export class Notification extends HTMLElement {
     });
   }
   private showCopyComplete() {
-    // TODO
+    const snackbar = this.shadowRoot?.querySelector(
+      '.snackbar',
+    ) as HTMLDivElement;
+    snackbar.innerText = '주소 복사 완료!';
+    snackbar.style.display = 'block';
+    setTimeout(() => {
+      snackbar.innerText = '';
+      snackbar.style.display = 'none';
+    }, 3000);
   }
 }
 

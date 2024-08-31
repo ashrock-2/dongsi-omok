@@ -17,3 +17,16 @@ p {
 strong {
   font-size: 1.25rem;
 }
+.snackbar {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: white;
+  background-color: hsla(0, 0%, 100%, 25%);
+  padding: 8px 6px;
+  border-radius: 6px;
+}
