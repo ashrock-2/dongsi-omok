@@ -2,6 +2,7 @@ import { match, P } from 'ts-pattern';
 import { State } from '../State';
 import type { GameState } from '@dongsi-omok/shared';
 import { applyParticleEffect } from './ParticleEffect';
+import { computePosition } from '@floating-ui/dom';
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -10,7 +11,8 @@ template.innerHTML = `
   <p>
     <span></span>
     <br/>
-    <strong></strong>
+    <strong>
+    </strong>
   </p>
 `;
 
@@ -36,10 +38,19 @@ export class Notification extends HTMLElement {
     });
   }
   private showCopyComplete() {
+    const wrapper = this.shadowRoot?.querySelector('p') as HTMLElement;
     const snackbar = this.shadowRoot?.querySelector(
       '.snackbar',
     ) as HTMLDivElement;
-    snackbar.innerText = '주소 복사 완료!';
+    computePosition(wrapper, snackbar, { placement: 'top' }).then(
+      ({ x, y }) => {
+        Object.assign(snackbar.style, {
+          left: `${x}px`,
+          top: `${y - 4}px`,
+        });
+      },
+    );
+    snackbar.innerText = '복사 완료!';
     snackbar.style.display = 'block';
     setTimeout(() => {
       snackbar.innerText = '';
