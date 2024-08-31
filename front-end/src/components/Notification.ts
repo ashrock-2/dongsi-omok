@@ -8,6 +8,7 @@ template.innerHTML = `
   <link rel="stylesheet" href="${new URL('./Notification.css', import.meta.url)}"></link>
   <p>
     <span></span>
+    <br/>
     <strong></strong>
   </p>
 `;
