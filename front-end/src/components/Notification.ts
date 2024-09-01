@@ -26,6 +26,28 @@ export class Notification extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.shadowRoot?.append(template.content.cloneNode(true));
+    this.updateContent();
+    State.addEventListener('stateChange', () => {
+      this.updateContent();
+    });
+    const wrapper = this.shadowRoot?.querySelector(
+      '.container',
+    ) as HTMLDivElement;
+    const strong = this.shadowRoot?.querySelector('strong')!;
+    applyParticleEffect(wrapper);
+    wrapper.addEventListener('click', () => {
+      match(State).with(
+        {
+          gameState: 'WAITING_FOR_OPPONENT',
+          roomId: P.when((roomId) => roomId !== null),
+        },
+        () => {
+          copyText(strong).then(() => this.showCopyComplete());
+        },
+      );
+    });
+  }
+  private updateContent() {
     const wrapper = this.shadowRoot?.querySelector(
       '.container',
     ) as HTMLDivElement;
@@ -33,32 +55,30 @@ export class Notification extends HTMLElement {
       '.main_text',
     ) as HTMLParagraphElement;
     const strong = this.shadowRoot?.querySelector('strong')!;
+    const subText = this.shadowRoot?.querySelector(
+      '.sub_text',
+    ) as HTMLParagraphElement;
     wrapper.style.display = getVisibility(State.gameState);
-    mainText.innerText = getSpanText(State);
+    subText.style.display = getSubTextVisibility(State);
+    mainText.innerText = getMainText(State);
     strong.innerText = getStrongText(State);
-    State.addEventListener('stateChange', () => {
-      wrapper.style.display = getVisibility(State.gameState);
-      mainText.innerText = getSpanText(State);
-      strong.innerText = getStrongText(State);
-    });
-    applyParticleEffect(wrapper);
-    wrapper.addEventListener('click', () => {
-      copyText(strong).then(() => this.showCopyComplete());
-    });
   }
   private showCopyComplete() {
     const wrapper = this.shadowRoot?.querySelector('.container') as HTMLElement;
     const snackbar = this.shadowRoot?.querySelector(
       '.snackbar',
     ) as HTMLDivElement;
-    computePosition(wrapper, snackbar, { placement: 'top' }).then(
-      ({ x, y }) => {
-        Object.assign(snackbar.style, {
-          left: `${x}px`,
-          top: `${y - 4}px`,
-        });
-      },
-    );
+    const updatePosition = () => {
+      computePosition(wrapper, snackbar, { placement: 'top' }).then(
+        ({ x, y }) => {
+          Object.assign(snackbar.style, {
+            left: `${x}px`,
+            top: `${y - 4}px`,
+          });
+        },
+      );
+    };
+    updatePosition();
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
@@ -68,14 +88,7 @@ export class Notification extends HTMLElement {
       this.timeout = null;
     }
     this.resizeObserver = new ResizeObserver(() => {
-      computePosition(wrapper, snackbar, { placement: 'top' }).then(
-        ({ x, y }) => {
-          Object.assign(snackbar.style, {
-            left: `${x}px`,
-            top: `${y - 4}px`,
-          });
-        },
-      );
+      updatePosition();
     });
     this.resizeObserver.observe(document.body);
 
@@ -93,7 +106,7 @@ const copyText = (dom: HTMLElement) =>
     navigator.clipboard.writeText(dom.innerText).then(() => resolve()),
   );
 
-const getSpanText = (state: typeof State) =>
+const getMainText = (state: typeof State) =>
   match(state)
     .with(
       {
@@ -127,6 +140,17 @@ const getVisibility = (state: GameState) =>
   match(state)
     .with('WAITING_FOR_OPPONENT', () => 'block' as const)
     .with('GAME_OVER', () => 'block' as const)
+    .otherwise(() => 'none' as const);
+
+const getSubTextVisibility = (state: typeof State) =>
+  match(state)
+    .with(
+      {
+        gameState: 'WAITING_FOR_OPPONENT',
+        roomId: P.when((roomId) => roomId !== null),
+      },
+      () => 'block' as const,
+    )
     .otherwise(() => 'none' as const);
 
 customElements.define('game-notification', Notification);
