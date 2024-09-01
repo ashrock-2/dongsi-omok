@@ -10,11 +10,9 @@ import { createServer } from 'http';
 import { match } from 'ts-pattern';
 import { WebSocketServer, WebSocket } from 'ws';
 import {
-  findRoomIdByWs,
   generateRoomId,
   getCommandQueueState,
   mergePlaceItemCommand,
-  removeWsFromRoom,
   updateBoardAndCheckWin,
   type Rooms,
 } from './util';
@@ -24,11 +22,12 @@ const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
   Array.from({ length: BOARD_SIZE }, (__) => null),
 );
 const rooms: Rooms = new Map();
+const clientMap: Map<WebSocket, string> = new Map();
 
 const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
   match(command)
     .with({ id: 'PLACE_ITEM' }, (command: ClientCommandType<'PLACE_ITEM'>) => {
-      const roomId = findRoomIdByWs(ws, rooms);
+      const roomId = clientMap.get(ws);
       if (!roomId) return;
       const room = rooms.get(roomId);
       if (!room) return;
@@ -71,6 +70,7 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
     .with({ id: 'CREATE_ROOM' }, () => {
       const roomId = generateRoomId();
       rooms.set(roomId, { clients: [ws], queue: [] });
+      clientMap.set(ws, roomId);
       ws.send(
         JSON.stringify(
           makeServerCommand('SEND_ROOM_ID', { payload: { roomId } }),
@@ -92,6 +92,7 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
           .when(
             (room) => room.clients.length === 1,
             (room) => {
+              clientMap.set(ws, roomId);
               room.clients.push(ws);
               room.clients.forEach((ws, idx) => {
                 ws.send(
@@ -138,9 +139,17 @@ wss.on('connection', (ws) => {
   });
 
   ws.on('close', () => {
-    const roomId = findRoomIdByWs(ws, rooms);
-    if (roomId) {
-      removeWsFromRoom(roomId, ws, rooms);
+    const roomId = clientMap.get(ws);
+    if (!roomId) return;
+    const room = rooms.get(roomId);
+    if (!room) return;
+
+    const idx = room.clients.findIndex((client) => client === ws);
+    if (idx !== -1) {
+      room.clients.splice(idx, 1);
+    }
+    if (room.clients.length === 0) {
+      rooms.delete(roomId);
     }
   });
 });

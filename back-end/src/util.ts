@@ -202,29 +202,3 @@ export const checkIsWin = (
 };
 
 export const generateRoomId = () => Math.random().toString(36).substring(2, 9);
-export const findRoomIdByWs = (ws: WebSocket, rooms: Rooms) => {
-  for (const [roomId, room] of rooms.entries()) {
-    const idx = room.clients.findIndex((client) => client === ws);
-    if (idx !== -1) {
-      return roomId;
-    }
-  }
-  return null;
-};
-
-export const removeWsFromRoom = (
-  roomId: string,
-  ws: WebSocket,
-  rooms: Rooms,
-) => {
-  const room = rooms.get(roomId);
-  if (!room) return;
-
-  const idx = room.clients.findIndex((client) => client === ws);
-  if (idx !== -1) {
-    room.clients.splice(idx, 1);
-  }
-  if (room.clients.length === 0) {
-    rooms.delete(roomId);
-  }
-};
