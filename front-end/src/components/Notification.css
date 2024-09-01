@@ -1,6 +1,6 @@
-p {
+.container {
   text-align: center;
-  background-color: hsla(0, 0%, 0%, 25%);
+  background-color: hsla(0, 0%, 0%, 42%);
   padding: 8px 6px;
   border-radius: 6px;
   z-index: 1;
@@ -11,12 +11,12 @@ p {
   transform: translate(-50%, -50%);
   cursor: pointer;
   &:hover {
-    strong {
-      background-color: hsla(0, 0%, 0%, 42%);
+    .sub_text {
+      background-color: hsla(0, 0%, 0%, 62%);
     }
   }
 }
-strong {
+.sub_text {
   display: inline-block;
   border: 1px solid gray;
   border-radius: 4px;
@@ -32,8 +32,8 @@ strong {
   top: 0;
   left: 0;
   text-align: center;
-  color: white;
-  background-color: hsla(0, 0%, 0%, 25%);
+  color: hsl(114, 82%, 62%);
+  background-color: hsla(0, 0%, 0%, 42%);
   padding: 8px 6px;
   border-radius: 6px;
 }

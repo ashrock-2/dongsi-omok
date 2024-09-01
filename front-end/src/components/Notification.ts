@@ -3,17 +3,19 @@ import { State } from '../State';
 import type { GameState } from '@dongsi-omok/shared';
 import { applyParticleEffect } from './ParticleEffect';
 import { computePosition } from '@floating-ui/dom';
+import { copyable } from '../icons/svg';
 
 const template = document.createElement('template');
 template.innerHTML = `
   <link rel="stylesheet" href="${new URL('./Notification.css', import.meta.url)}"></link>
   <div class="snackbar"></div>
-  <p>
-    <span></span>
-    <br/>
-    <strong>
-    </strong>
-  </p>
+  <div class="container">
+    <p class="main_text"></p>
+    <p class="sub_text">
+      <strong></strong>
+      ${copyable}
+    </p>
+  </div>
 `;
 
 export class Notification extends HTMLElement {
@@ -21,15 +23,19 @@ export class Notification extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.shadowRoot?.append(template.content.cloneNode(true));
-    const wrapper = this.shadowRoot?.querySelector('p') as HTMLParagraphElement;
-    const span = this.shadowRoot?.querySelector('span') as HTMLSpanElement;
+    const wrapper = this.shadowRoot?.querySelector(
+      '.container',
+    ) as HTMLDivElement;
+    const mainText = this.shadowRoot?.querySelector(
+      '.main_text',
+    ) as HTMLParagraphElement;
     const strong = this.shadowRoot?.querySelector('strong')!;
     wrapper.style.display = getVisibility(State.gameState);
-    span.innerText = getSpanText(State);
+    mainText.innerText = getSpanText(State);
     strong.innerText = getStrongText(State);
     State.addEventListener('stateChange', () => {
       wrapper.style.display = getVisibility(State.gameState);
-      span.innerText = getSpanText(State);
+      mainText.innerText = getSpanText(State);
       strong.innerText = getStrongText(State);
     });
     applyParticleEffect(wrapper);
@@ -38,7 +44,7 @@ export class Notification extends HTMLElement {
     });
   }
   private showCopyComplete() {
-    const wrapper = this.shadowRoot?.querySelector('p') as HTMLElement;
+    const wrapper = this.shadowRoot?.querySelector('.container') as HTMLElement;
     const snackbar = this.shadowRoot?.querySelector(
       '.snackbar',
     ) as HTMLDivElement;
