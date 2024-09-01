@@ -20,6 +20,7 @@ template.innerHTML = `
 
 export class Notification extends HTMLElement {
   private timeout: NodeJS.Timeout | null = null;
+  private resizeObserver: ResizeObserver | null = null;
 
   constructor() {
     super();
@@ -58,11 +59,26 @@ export class Notification extends HTMLElement {
         });
       },
     );
-
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
     if (this.timeout) {
       clearTimeout(this.timeout);
       this.timeout = null;
     }
+    this.resizeObserver = new ResizeObserver(() => {
+      computePosition(wrapper, snackbar, { placement: 'top' }).then(
+        ({ x, y }) => {
+          Object.assign(snackbar.style, {
+            left: `${x}px`,
+            top: `${y - 4}px`,
+          });
+        },
+      );
+    });
+    this.resizeObserver.observe(document.body);
+
     snackbar.innerText = '복사 완료!';
     snackbar.style.display = 'block';
     this.timeout = setTimeout(() => {
