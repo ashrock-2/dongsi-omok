@@ -37,13 +37,22 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
           )),
         )
       }
-      <div class="border-beam"></div>
+      <border-beam></border-beam>
     </omok-board>
   </body>
   <style define:vars={{ boardSize: BOARD_SIZE }}>
     @keyframes border-beam {
       100% {
         offset-distance: 100%;
+      }
+    }
+    @keyframes pulse {
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 burlywood;
+      }
+      50% {
+        box-shadow: 0 0 0 4px hsla(334, 82%, 72%, 20%);
       }
     }
     @font-face {
@@ -67,36 +76,42 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       border-radius: 8px;
       position: relative;
     }
-    .border-beam {
+    border-beam {
       pointer-events: none;
       position: absolute;
       top: 0;
       right: 0;
       bottom: 0;
       left: 0;
-
       border: 2px solid transparent;
       border-radius: inherit;
 
-      mask-clip: padding-box, border-box !important;
-      mask-composite: intersect !important;
-      mask: linear-gradient(transparent, transparent),
-        linear-gradient(white, white);
       &::after {
         content: '';
-        width: 100%;
         aspect-ratio: 1;
         position: absolute;
-        background: linear-gradient(
-          to left,
-          hsl(60, 100%, 50%),
-          hsl(30, 100%, 50%),
-          transparent
-        );
+      }
 
-        animation: border-beam 6s infinite linear;
-        offset-anchor: 90% 50%;
-        offset-path: rect(0 auto auto 0 round 600px);
+      &.loading {
+        mask-clip: padding-box, border-box !important;
+        mask-composite: intersect !important;
+        mask: linear-gradient(transparent, transparent),
+          linear-gradient(white, white);
+        &::after {
+          width: 100%;
+          background: linear-gradient(
+            to left,
+            hsl(60, 100%, 50%),
+            hsl(30, 100%, 50%),
+            transparent
+          );
+          animation: border-beam 6s infinite linear;
+          offset-anchor: 90% 50%;
+          offset-path: rect(0 auto auto 0 round 600px);
+        }
+      }
+      &.active {
+        animation: pulse 1.5s ease-in-out infinite;
       }
     }
     .flower-point {

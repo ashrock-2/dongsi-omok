@@ -9,6 +9,7 @@ import { match } from 'ts-pattern';
 import { State } from './State';
 export { Notification } from './components/Notification';
 export { Board } from './components/Board';
+export { BorderBeam } from './components/BorderBeam';
 
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
 State.socket = new WebSocket(backendUrl);
