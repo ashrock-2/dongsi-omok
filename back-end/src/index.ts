@@ -147,6 +147,10 @@ wss.on('connection', (ws) => {
     const idx = room.clients.findIndex((client) => client === ws);
     if (idx !== -1) {
       room.clients.splice(idx, 1);
+      const [client] = room.clients;
+      client.send(
+        JSON.stringify(makeServerCommand('LEAVE_OPPONENT', { payload: {} })),
+      );
     }
     if (room.clients.length === 0) {
       rooms.delete(roomId);

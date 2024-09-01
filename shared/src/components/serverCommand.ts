@@ -6,6 +6,7 @@ export const ServerCommands = {
   START_GAME: 'START_GAME',
   SEND_ROOM_ID: 'SEND_ROOM_ID',
   NOTIFY_WINNER: 'NOTIFY_WINNER',
+  LEAVE_OPPONENT: 'LEAVE_OPPONENT',
 } as const;
 export type KeyOfServerCommands = keyof typeof ServerCommands;
 export type ServerCommandType<COMMAND extends keyof typeof ServerCommands> = {
@@ -32,6 +33,7 @@ type ServerCommandPayloadMapType = {
     winner: BoardItem | null;
     winningCoordinates: Array<{ row: number; col: number }> | null;
   };
+  [ServerCommands.LEAVE_OPPONENT]: {};
 };
 
 export type ServerCommandPayloadRegistry = {

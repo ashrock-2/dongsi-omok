@@ -5,7 +5,8 @@ export type GameState =
   | 'WAITING_FOR_OPPONENT'
   | 'AWAIT_MOVE'
   | 'IN_PROGRESS'
-  | 'GAME_OVER';
+  | 'GAME_OVER'
+  | 'LEAVE_OPPONENT';
 
 export const BOARD_SIZE = 19;
 export const ALPHABETS = [

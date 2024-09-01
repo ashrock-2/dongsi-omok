@@ -123,6 +123,7 @@ const getMainText = (state: typeof State) =>
       },
       () => `방을 생성 중입니다...`,
     )
+    .with({ gameState: 'LEAVE_OPPONENT' }, () => '상대방이 나갔습니다.')
     .otherwise(() => '');
 
 const getStrongText = (state: typeof State) =>
@@ -139,7 +140,7 @@ const getStrongText = (state: typeof State) =>
 const getVisibility = (state: GameState) =>
   match(state)
     .with('WAITING_FOR_OPPONENT', () => 'block' as const)
-    .with('GAME_OVER', () => 'block' as const)
+    .with('GAME_OVER', 'LEAVE_OPPONENT', () => 'block' as const)
     .otherwise(() => 'none' as const);
 
 const getSubTextVisibility = (state: typeof State) =>

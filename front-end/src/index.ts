@@ -65,6 +65,9 @@ const handleServerCommand = (command: ServerCommand) => {
           });
       },
     )
+    .with({ id: 'LEAVE_OPPONENT' }, () => {
+      State.gameState = 'LEAVE_OPPONENT';
+    })
     .exhaustive();
 };
 
