@@ -19,6 +19,8 @@ template.innerHTML = `
 `;
 
 export class Notification extends HTMLElement {
+  private timeout: NodeJS.Timeout | null = null;
+
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -56,9 +58,14 @@ export class Notification extends HTMLElement {
         });
       },
     );
+
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+    }
     snackbar.innerText = '복사 완료!';
     snackbar.style.display = 'block';
-    setTimeout(() => {
+    this.timeout = setTimeout(() => {
       snackbar.innerText = '';
       snackbar.style.display = 'none';
     }, 3000);
