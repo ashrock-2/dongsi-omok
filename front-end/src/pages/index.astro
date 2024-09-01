@@ -10,15 +10,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     <meta name="generator" content={Astro.generator} />
     <title>동시오목</title>
   </head>
-  <body
-    style={{
-      background: 'linear-gradient(180deg, hsl(0, 0%, 11%), hsl(345, 83%, 7%))',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: 'calc(100dvh - 16px)',
-    }}
-  >
+  <body>
     <game-notification></game-notification>
     <omok-board>
       {
@@ -64,6 +56,11 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     }
     body {
       font-family: 'IropkeBatang', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: calc(100dvh - 16px);
+      background: linear-gradient(180deg, hsl(0, 0%, 11%), hsl(345, 83%, 7%));
     }
     omok-board {
       width: 100%;

@@ -18,7 +18,6 @@ export class Board extends HTMLElement {
         return;
       }
       if (ProhibitedGameStateForClientPlaceItem.includes(State.gameState)) {
-        console.log('wait for opponent');
         return;
       }
       if (State.player === null) {

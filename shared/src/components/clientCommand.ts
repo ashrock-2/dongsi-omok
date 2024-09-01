@@ -63,4 +63,5 @@ export const makeClientCommand = <T extends KeyOfClientCommands>(
 export const ProhibitedGameStateForClientPlaceItem: Array<GameState> = [
   'WAITING_FOR_OPPONENT',
   'AWAIT_MOVE',
+  'GAME_OVER',
 ] as const;
