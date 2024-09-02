@@ -64,4 +64,5 @@ export const ProhibitedGameStateForClientPlaceItem: Array<GameState> = [
   'WAITING_FOR_OPPONENT',
   'AWAIT_MOVE',
   'GAME_OVER',
+  'LEAVE_OPPONENT',
 ] as const;
