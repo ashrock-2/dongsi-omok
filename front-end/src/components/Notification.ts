@@ -133,7 +133,7 @@ const getStrongText = (state: typeof State) =>
         gameState: 'WAITING_FOR_OPPONENT',
         roomId: P.when((roomId) => roomId !== null),
       },
-      ({ roomId }) => `https://dongsi-omok.vercel.app?roomId=${roomId}`,
+      ({ roomId }) => `https://dongsi-omok.vercel.app/pvp?roomId=${roomId}`,
     )
     .otherwise(() => '');
 
