@@ -13,6 +13,7 @@ export class BorderBeam extends HTMLElement {
           () => 'loading' as const,
         )
         .with('IN_PROGRESS', () => 'active' as const)
+        .with('LEAVE_OPPONENT', () => 'loading')
         .exhaustive();
     });
   }

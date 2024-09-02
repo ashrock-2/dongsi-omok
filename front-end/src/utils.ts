@@ -1,4 +1,4 @@
-import { type Board, type BoardItem } from '@dongsi-omok/shared';
+import { type BoardItem } from '@dongsi-omok/shared';
 
 export const find_item_in_board = (row: string, col: string) =>
   document.querySelector(`[data-row="${row}"][data-col="${col}"]`)!;
