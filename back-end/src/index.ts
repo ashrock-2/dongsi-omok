@@ -3,7 +3,6 @@ import {
   type ClientCommand,
   isValidClientCommand,
   makeServerCommand,
-  type Board,
   BOARD_SIZE,
 } from '@dongsi-omok/shared';
 import { createServer } from 'http';
@@ -18,9 +17,6 @@ import {
 } from './util';
 const server = createServer();
 const wss = new WebSocketServer({ server });
-const board: Board = Array.from({ length: BOARD_SIZE }, (_) =>
-  Array.from({ length: BOARD_SIZE }, (__) => null),
-);
 const rooms: Rooms = new Map();
 const clientMap: Map<WebSocket, string> = new Map();
 
@@ -49,7 +45,7 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
             room.queue.push(command);
             const placeItemCommand = mergePlaceItemCommand(room.queue);
             const { isFinish, winner, winningCoordinates } =
-              updateBoardAndCheckWin(board, placeItemCommand);
+              updateBoardAndCheckWin(room.board, placeItemCommand);
             room.clients.forEach((client) => {
               client.send(JSON.stringify(placeItemCommand));
               client.send(
@@ -69,7 +65,13 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
     })
     .with({ id: 'CREATE_ROOM' }, () => {
       const roomId = generateRoomId();
-      rooms.set(roomId, { clients: [ws], queue: [] });
+      rooms.set(roomId, {
+        clients: [ws],
+        queue: [],
+        board: Array.from({ length: BOARD_SIZE }, (_) =>
+          Array.from({ length: BOARD_SIZE }, (__) => null),
+        ),
+      });
       clientMap.set(ws, roomId);
       ws.send(
         JSON.stringify(

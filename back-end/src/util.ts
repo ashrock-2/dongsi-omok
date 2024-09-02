@@ -12,7 +12,7 @@ import type WebSocket from 'ws';
 export type PlaceCommandQueue = Array<ClientCommandType<'PLACE_ITEM'>>;
 export type Rooms = Map<
   string,
-  { clients: Array<WebSocket>; queue: PlaceCommandQueue }
+  { clients: Array<WebSocket>; queue: PlaceCommandQueue; board: Board }
 >;
 
 export const getCommandQueueState = (queue: PlaceCommandQueue) =>
