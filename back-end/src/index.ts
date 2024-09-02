@@ -148,7 +148,7 @@ wss.on('connection', (ws) => {
     if (idx !== -1) {
       room.clients.splice(idx, 1);
       const [client] = room.clients;
-      client.send(
+      client?.send(
         JSON.stringify(makeServerCommand('LEAVE_OPPONENT', { payload: {} })),
       );
     }
