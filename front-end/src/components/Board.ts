@@ -30,7 +30,7 @@ export class Board extends HTMLElement {
           }),
         ),
       );
-      place_a_item(button, 'plan');
+      place_a_item(button, 'plan', State.player);
       State.gameState = 'AWAIT_MOVE';
     });
   }
