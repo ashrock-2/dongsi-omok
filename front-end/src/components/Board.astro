@@ -118,12 +118,12 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     }
 
     &.item {
+      border-radius: 50%;
       .flower-point,
       &::before,
       &::after {
-        display: none;
+        visibility: hidden;
       }
-      border-radius: 50%;
       &.white {
         background-color: white;
       }
@@ -131,8 +131,12 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
         background-color: black;
       }
       &.prohibit {
-        background-color: red;
-        border-radius: 50%;
+        &::before,
+        &::after {
+          visibility: visible;
+          background-color: red;
+          transform: rotateZ(45deg);
+        }
       }
       &.plan {
         opacity: 0.5;
@@ -153,6 +157,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       content: '';
       position: absolute;
       background-color: black;
+      transition: all 0.3s ease-in-out;
     }
     &::before {
       width: 1px;
