@@ -36,6 +36,15 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       box-shadow: 0 0 0 4px hsla(334, 82%, 72%, 20%);
     }
   }
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
   omok-board {
     width: 100%;
     max-width: 600px;
@@ -112,12 +121,10 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       border-radius: 50%;
       &.white {
         background-color: white;
-        .flower-point {
-          z-index: -2;
-        }
+        .flower-point,
         &::before,
         &::after {
-          z-index: -1;
+          display: none;
         }
       }
       &.black {
@@ -129,6 +136,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       }
       &.plan {
         opacity: 0.5;
+        animation: blink 1.5s ease-in-out infinite;
       }
     }
 
