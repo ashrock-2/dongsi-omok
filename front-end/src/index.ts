@@ -3,6 +3,7 @@ import {
   isValidServerCommand,
   type ServerCommand,
   type ServerCommandType,
+  type Player,
 } from '@dongsi-omok/shared';
 import { find_item_in_board, place_a_item } from './utils';
 import { match } from 'ts-pattern';
@@ -62,8 +63,9 @@ const handleServerCommand = (command: ServerCommand) => {
     .with(
       { id: 'PLACE_ITEM' },
       ({ payload }: ServerCommandType<'PLACE_ITEM'>) => {
+        /** TODO: 3번째 인자 수정 */
         payload.forEach(({ item, row, col }) =>
-          place_a_item(find_item_in_board(row, col), item),
+          place_a_item(find_item_in_board(row, col), item, item as Player),
         );
         State.gameState = 'IN_PROGRESS';
       },
