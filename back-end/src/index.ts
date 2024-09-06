@@ -140,7 +140,7 @@ wss.on('connection', (ws) => {
     }
   });
 
-  ws.on('close', () => {
+  ws.on('close', (code) => {
     const roomId = clientMap.get(ws);
     if (!roomId) return;
     const room = rooms.get(roomId);
