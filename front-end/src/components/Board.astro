@@ -33,7 +33,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       box-shadow: 0 0 0 0 burlywood;
     }
     50% {
-      box-shadow: 0 0 0 4px hsla(334, 82%, 72%, 20%);
+      box-shadow: 0 0 0 8px hsla(334, 82%, 72%, 20%);
     }
   }
   @keyframes blink {
@@ -118,14 +118,14 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     }
 
     &.item {
+      .flower-point,
+      &::before,
+      &::after {
+        display: none;
+      }
       border-radius: 50%;
       &.white {
         background-color: white;
-        .flower-point,
-        &::before,
-        &::after {
-          display: none;
-        }
       }
       &.black {
         background-color: black;
