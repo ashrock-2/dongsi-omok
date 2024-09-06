@@ -122,7 +122,7 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       .flower-point,
       &::before,
       &::after {
-        visibility: hidden;
+        opacity: 0;
       }
       &.white {
         background-color: white;
@@ -133,7 +133,8 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       &.prohibit {
         &::before,
         &::after {
-          visibility: visible;
+          transition: all 0.3s ease-in-out;
+          opacity: 1;
           background-color: red;
           transform: rotateZ(45deg);
         }
@@ -157,7 +158,6 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       content: '';
       position: absolute;
       background-color: black;
-      transition: all 0.3s ease-in-out;
     }
     &::before {
       width: 1px;
