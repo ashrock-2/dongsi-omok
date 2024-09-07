@@ -95,13 +95,12 @@ const handleServerCommand = (command: ServerCommand) => {
             { isFinish: true, winner: 'black' },
             { isFinish: true, winner: 'white' },
             ({ winner, winningCoordinates }) => {
-              alert(`${winner} is winner`);
+              State.winner = winner;
               State.gameState = 'GAME_OVER';
               State.winningCoordinates = winningCoordinates!;
             },
           )
           .with({ isFinish: true, winner: null }, ({ winningCoordinates }) => {
-            alert('draw!');
             State.gameState = 'GAME_OVER';
             State.winningCoordinates = winningCoordinates!;
           })

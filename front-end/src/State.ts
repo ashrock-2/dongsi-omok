@@ -5,6 +5,7 @@ class StateStore extends EventTarget {
   private _player: Player | null = null;
   private _gameState: GameState = 'WAITING_FOR_OPPONENT';
   private _roomId: string | null = null;
+  private _winner: Player | null = null;
   private _winningCoordinates: Array<{ row: number; col: number }> = [];
   private _socket: WebSocket | null = null;
 
@@ -61,6 +62,13 @@ class StateStore extends EventTarget {
 
   set socket(val: WebSocket | null) {
     this._socket = val;
+  }
+
+  get winner() {
+    return this._winner;
+  }
+  set winner(val: Player | null) {
+    this._winner = val;
   }
 }
 

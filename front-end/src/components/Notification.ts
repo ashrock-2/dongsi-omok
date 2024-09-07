@@ -115,7 +115,20 @@ const getMainText = (state: typeof State) =>
       },
       () => '다음 주소를 상대방에게 공유해주세요.',
     )
-    .with({ gameState: 'GAME_OVER' }, () => `다시 시작?`)
+    .with({ gameState: 'GAME_OVER' }, (state) => {
+      return match({ winner: state.winner, player: state.player })
+        .with(
+          { winner: 'black', player: 'black' },
+          { winner: 'white', player: 'white' },
+          () => '당신이 이겼습니다!',
+        )
+        .with(
+          { winner: 'black', player: 'white' },
+          { winner: 'white', player: 'black' },
+          () => '당신이 졌습니다!',
+        )
+        .otherwise(() => '비겼습니다!');
+    })
     .with(
       {
         gameState: 'WAITING_FOR_OPPONENT',
