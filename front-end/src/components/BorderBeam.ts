@@ -1,5 +1,5 @@
 import { match } from 'ts-pattern';
-import { State } from '../State';
+import { State } from '../states/State';
 
 export class BorderBeam extends HTMLElement {
   constructor() {

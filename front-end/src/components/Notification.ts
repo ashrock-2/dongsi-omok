@@ -1,5 +1,5 @@
 import { match, P } from 'ts-pattern';
-import { State } from '../State';
+import { State } from '../states/State';
 import type { GameState } from '@dongsi-omok/shared';
 import { applyParticleEffect } from './ParticleEffect';
 import { computePosition } from '@floating-ui/dom';

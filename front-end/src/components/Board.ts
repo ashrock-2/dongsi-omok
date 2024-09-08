@@ -1,10 +1,3 @@
-import {
-  makeClientCommand,
-  ProhibitedGameStateForClientPlaceItem,
-} from '@dongsi-omok/shared';
-import { State } from '../State';
-import { place_a_item } from '../utils';
-
 export class Board extends HTMLElement {
   constructor() {
     super();
@@ -17,21 +10,9 @@ export class Board extends HTMLElement {
       if (!row || !col) {
         return;
       }
-      if (ProhibitedGameStateForClientPlaceItem.includes(State.gameState)) {
-        return;
-      }
-      if (State.player === null) {
-        return;
-      }
-      State.socket?.send(
-        JSON.stringify(
-          makeClientCommand('PLACE_ITEM', {
-            payload: { item: State.player, row, col },
-          }),
-        ),
+      this.dispatchEvent(
+        new CustomEvent('board-click', { detail: { row, col } }),
       );
-      place_a_item(button, 'plan', State.player);
-      State.gameState = 'AWAIT_MOVE';
     });
   }
 }
