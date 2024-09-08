@@ -5,10 +5,12 @@ import {
 } from '@dongsi-omok/shared';
 import { find_item_in_board, place_a_item } from '../utils';
 import { match } from 'ts-pattern';
-import { State } from '../states/State';
+import { StateStore } from '../states/State';
 export { Notification } from '../components/Notification';
 export { Board } from '../components/Board';
 export { BorderBeam } from '../components/BorderBeam';
+
+const State = new StateStore();
 
 const connectSocket = () => {
   State.socket = {} as WebSocket;

@@ -8,14 +8,18 @@ import {
 } from '@dongsi-omok/shared';
 import { find_item_in_board, place_a_item } from '../utils';
 import { match } from 'ts-pattern';
-import { State } from '../states/State';
-export { Notification } from '../components/Notification';
-export { Board } from '../components/Board';
-export { BorderBeam } from '../components/BorderBeam';
+import { StateStore } from '../states/State';
+import { Board } from '../components/Board';
+export { Board };
+import { Notification } from '../components/Notification';
+export { Notification };
+import { BorderBeam } from '../components/BorderBeam';
+export { BorderBeam };
 
+const State = new StateStore();
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
 let reconnectAttempts = 0;
-const board = document.querySelector('omok-board');
+const board = document.querySelector('omok-board') as Board;
 board?.addEventListener('board-click', (event) => {
   const customEvent = event as CustomEvent<{ row: string; col: string }>;
   if (ProhibitedGameStateForClientPlaceItem.includes(State.gameState)) {
@@ -35,6 +39,12 @@ board?.addEventListener('board-click', (event) => {
   place_a_item(find_item_in_board(row, col), 'plan', State.player);
   State.gameState = 'AWAIT_MOVE';
 });
+const borderBeam = board?.querySelector('border-beam') as BorderBeam;
+borderBeam.setState(State);
+const notification = document.querySelector(
+  'game-notification',
+) as Notification;
+notification.setState(State);
 
 const connectSocket = () => {
   State.socket = new WebSocket(backendUrl);

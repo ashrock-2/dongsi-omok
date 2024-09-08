@@ -1,6 +1,6 @@
 import type { GameState, Player } from '@dongsi-omok/shared';
 
-class StateStore extends EventTarget {
+export class StateStore extends EventTarget {
   private static _instance: StateStore;
   private _player: Player | null = null;
   private _gameState: GameState = 'WAITING_FOR_OPPONENT';
@@ -71,5 +71,3 @@ class StateStore extends EventTarget {
     this._winner = val;
   }
 }
-
-export const State = StateStore.instance;

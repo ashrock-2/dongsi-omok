@@ -1,5 +1,5 @@
 import { match, P } from 'ts-pattern';
-import { State } from '../states/State';
+import { StateStore } from '../states/State';
 import type { GameState } from '@dongsi-omok/shared';
 import { applyParticleEffect } from './ParticleEffect';
 import { computePosition } from '@floating-ui/dom';
@@ -21,22 +21,28 @@ template.innerHTML = `
 export class Notification extends HTMLElement {
   private timeout: NodeJS.Timeout | null = null;
   private resizeObserver: ResizeObserver | null = null;
+  private state: StateStore | null = null;
 
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
     this.shadowRoot?.append(template.content.cloneNode(true));
-    this.updateContent();
-    State.addEventListener('stateChange', () => {
+  }
+
+  public setState(state: StateStore) {
+    this.state = state;
+    this.state.addEventListener('stateChange', () => {
       this.updateContent();
     });
+    this.updateContent();
+
     const wrapper = this.shadowRoot?.querySelector(
       '.container',
     ) as HTMLDivElement;
     const strong = this.shadowRoot?.querySelector('strong')!;
     applyParticleEffect(wrapper);
     wrapper.addEventListener('click', () => {
-      match(State).with(
+      match(this.state).with(
         {
           gameState: 'WAITING_FOR_OPPONENT',
           roomId: P.when((roomId) => roomId !== null),
@@ -47,6 +53,7 @@ export class Notification extends HTMLElement {
       );
     });
   }
+
   private updateContent() {
     const wrapper = this.shadowRoot?.querySelector(
       '.container',
@@ -58,10 +65,10 @@ export class Notification extends HTMLElement {
     const subText = this.shadowRoot?.querySelector(
       '.sub_text',
     ) as HTMLParagraphElement;
-    wrapper.style.display = getVisibility(State.gameState);
-    subText.style.display = getSubTextVisibility(State);
-    mainText.innerText = getMainText(State);
-    strong.innerText = getStrongText(State);
+    wrapper.style.display = getVisibility(this.state!.gameState);
+    subText.style.display = getSubTextVisibility(this.state!);
+    mainText.innerText = getMainText(this.state!);
+    strong.innerText = getStrongText(this.state!);
   }
   private showCopyComplete() {
     const wrapper = this.shadowRoot?.querySelector('.container') as HTMLElement;
@@ -106,7 +113,7 @@ const copyText = (dom: HTMLElement) =>
     navigator.clipboard.writeText(dom.innerText).then(() => resolve()),
   );
 
-const getMainText = (state: typeof State) =>
+const getMainText = (state: StateStore) =>
   match(state)
     .with(
       {
@@ -139,7 +146,7 @@ const getMainText = (state: typeof State) =>
     .with({ gameState: 'LEAVE_OPPONENT' }, () => '상대방이 나갔습니다.')
     .otherwise(() => '');
 
-const getStrongText = (state: typeof State) =>
+const getStrongText = (state: StateStore) =>
   match(state)
     .with(
       {
@@ -156,7 +163,7 @@ const getVisibility = (state: GameState) =>
     .with('GAME_OVER', 'LEAVE_OPPONENT', () => 'block' as const)
     .otherwise(() => 'none' as const);
 
-const getSubTextVisibility = (state: typeof State) =>
+const getSubTextVisibility = (state: StateStore) =>
   match(state)
     .with(
       {

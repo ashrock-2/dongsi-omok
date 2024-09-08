@@ -1,11 +1,15 @@
 import { match } from 'ts-pattern';
-import { State } from '../states/State';
+import { StateStore } from '../states/State';
 
 export class BorderBeam extends HTMLElement {
+  private state: StateStore | null = null;
   constructor() {
     super();
-    State.addEventListener('stateChange', () => {
-      this.className = match(State.gameState)
+  }
+  setState(state: StateStore) {
+    this.state = state;
+    this.state.addEventListener('stateChange', () => {
+      this.className = match(state.gameState)
         .with(
           'AWAIT_MOVE',
           'WAITING_FOR_OPPONENT',
