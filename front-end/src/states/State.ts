@@ -1,7 +1,6 @@
 import type { GameState, Player } from '@dongsi-omok/shared';
 
 export class StateStore extends EventTarget {
-  private static _instance: StateStore;
   private _player: Player | null = null;
   private _gameState: GameState = 'WAITING_FOR_OPPONENT';
   private _roomId: string | null = null;
@@ -11,13 +10,6 @@ export class StateStore extends EventTarget {
 
   constructor() {
     super();
-  }
-
-  static get instance(): StateStore {
-    if (!StateStore._instance) {
-      StateStore._instance = new StateStore();
-    }
-    return StateStore._instance;
   }
 
   get player() {
