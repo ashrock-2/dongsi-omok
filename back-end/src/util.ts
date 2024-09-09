@@ -1,15 +1,13 @@
 import {
   ALPHABETS,
   makeServerCommand,
-  type BoardItem,
   type Board,
-  type ClientCommandType,
   type ServerCommandType,
+  type PlaceCommandQueue,
 } from '@dongsi-omok/shared';
 import { match } from 'ts-pattern';
 import type WebSocket from 'ws';
 
-export type PlaceCommandQueue = Array<ClientCommandType<'PLACE_ITEM'>>;
 export type Rooms = Map<
   string,
   { clients: Array<WebSocket>; queue: PlaceCommandQueue; board: Board }

@@ -37,3 +37,7 @@ export const ALPHABETS = [
   'Y',
   'Z',
 ] as const;
+export const initBoard = (): Board =>
+  Array.from({ length: BOARD_SIZE }, (_) =>
+    Array.from({ length: BOARD_SIZE }, (__) => null),
+  );

@@ -3,7 +3,7 @@ import {
   type ClientCommand,
   isValidClientCommand,
   makeServerCommand,
-  BOARD_SIZE,
+  initBoard,
 } from '@dongsi-omok/shared';
 import { createServer } from 'http';
 import { match } from 'ts-pattern';
@@ -68,9 +68,7 @@ const handleClientCommand = (command: ClientCommand, ws: WebSocket) => {
       rooms.set(roomId, {
         clients: [ws],
         queue: [],
-        board: Array.from({ length: BOARD_SIZE }, (_) =>
-          Array.from({ length: BOARD_SIZE }, (__) => null),
-        ),
+        board: initBoard(),
       });
       clientMap.set(ws, roomId);
       ws.send(

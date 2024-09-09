@@ -1,4 +1,13 @@
-import { isValidClientCommand, type ClientCommand } from '@dongsi-omok/shared';
+import {
+  BOARD_SIZE,
+  initBoard,
+  isValidClientCommand,
+  type ClientCommand,
+  type ClientCommandType,
+} from '@dongsi-omok/shared';
+
+const queue: Array<ClientCommandType<'PLACE_ITEM'>> = [];
+const board = initBoard();
 
 export const AISocket = {
   send(data) {

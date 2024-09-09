@@ -66,3 +66,5 @@ export const ProhibitedGameStateForClientPlaceItem: Array<GameState> = [
   'GAME_OVER',
   'LEAVE_OPPONENT',
 ] as const;
+
+export type PlaceCommandQueue = Array<ClientCommandType<'PLACE_ITEM'>>;
