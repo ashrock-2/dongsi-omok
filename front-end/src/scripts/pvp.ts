@@ -14,37 +14,13 @@ export { Board };
 import { Notification } from '../components/Notification';
 export { Notification };
 import { BorderBeam } from '../components/BorderBeam';
+import { init } from './omok';
+import { handleServerCommand } from './handleServerCommand';
 export { BorderBeam };
 
 const State = new StateStore();
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
 let reconnectAttempts = 0;
-const board = document.querySelector('omok-board') as Board;
-board?.addEventListener('board-click', (event) => {
-  const customEvent = event as CustomEvent<{ row: string; col: string }>;
-  if (ProhibitedGameStateForClientPlaceItem.includes(State.gameState)) {
-    return;
-  }
-  if (State.player === null) {
-    return;
-  }
-  const { row, col } = customEvent.detail;
-  State.socket?.send(
-    JSON.stringify(
-      makeClientCommand('PLACE_ITEM', {
-        payload: { item: State.player, row, col },
-      }),
-    ),
-  );
-  place_a_item(find_item_in_board(row, col), 'plan', State.player);
-  State.gameState = 'AWAIT_MOVE';
-});
-const borderBeam = board?.querySelector('border-beam') as BorderBeam;
-borderBeam.setState(State);
-const notification = document.querySelector(
-  'game-notification',
-) as Notification;
-notification.setState(State);
 
 const connectSocket = () => {
   State.socket = new WebSocket(backendUrl);
@@ -81,7 +57,7 @@ const connectSocket = () => {
         const parsedMessage = JSON.parse(event.data.toString());
         console.log(parsedMessage);
         if (isValidServerCommand(parsedMessage)) {
-          handleServerCommand(parsedMessage);
+          handleServerCommand(parsedMessage, State);
         }
       } catch (err) {
         console.error('Failed to parse message', err);
@@ -90,61 +66,5 @@ const connectSocket = () => {
   };
 };
 
-const handleServerCommand = (command: ServerCommand) => {
-  match(command)
-    .with(
-      { id: 'PLACE_ITEM' },
-      ({ payload }: ServerCommandType<'PLACE_ITEM'>) => {
-        /** TODO: 3번째 인자 수정 */
-        payload.forEach(({ item, row, col }) =>
-          place_a_item(find_item_in_board(row, col), item, item as Player),
-        );
-        State.gameState = 'IN_PROGRESS';
-      },
-    )
-    .with(
-      { id: 'SET_PLAYER_COLOR' },
-      (command: ServerCommandType<'SET_PLAYER_COLOR'>) => {
-        State.player = command.payload.color;
-        console.log(`you are ${State.player}`);
-      },
-    )
-    .with({ id: 'START_GAME' }, () => {
-      State.gameState = 'IN_PROGRESS';
-    })
-    .with(
-      { id: 'SEND_ROOM_ID' },
-      (command: ServerCommandType<'SEND_ROOM_ID'>) => {
-        const { roomId } = command.payload;
-        State.roomId = roomId;
-      },
-    )
-    .with(
-      { id: 'NOTIFY_WINNER' },
-      (command: ServerCommandType<'NOTIFY_WINNER'>) => {
-        match(command.payload)
-          .with(
-            { isFinish: true, winner: 'black' },
-            { isFinish: true, winner: 'white' },
-            ({ winner, winningCoordinates }) => {
-              State.winner = winner;
-              State.gameState = 'GAME_OVER';
-              State.winningCoordinates = winningCoordinates!;
-            },
-          )
-          .with({ isFinish: true, winner: null }, ({ winningCoordinates }) => {
-            State.gameState = 'GAME_OVER';
-            State.winningCoordinates = winningCoordinates!;
-          })
-          .otherwise(() => {
-            // do nothing
-          });
-      },
-    )
-    .with({ id: 'LEAVE_OPPONENT' }, () => {
-      State.gameState = 'LEAVE_OPPONENT';
-    })
-    .exhaustive();
-};
-
 connectSocket();
+init(State);
