@@ -1,12 +1,6 @@
-import {
-  BOARD_SIZE,
-  initBoard,
-  isValidClientCommand,
-  type ClientCommand,
-  type ClientCommandType,
-} from '@dongsi-omok/shared';
+import { initBoard, isValidClientCommand } from '@dongsi-omok/shared';
+import { handleClientCommand } from './handleClientCommand';
 
-const queue: Array<ClientCommandType<'PLACE_ITEM'>> = [];
 const board = initBoard();
 
 export const AISocket = {
@@ -16,7 +10,7 @@ export const AISocket = {
       if (isValidClientCommand(parsedMessage)) {
         if (this.onmessage) {
           this.onmessage({
-            data: handleClientCommand(parsedMessage),
+            data: handleClientCommand(parsedMessage, board),
           } as MessageEvent);
         }
       }
@@ -25,7 +19,3 @@ export const AISocket = {
     }
   },
 } as WebSocket;
-
-const handleClientCommand = (command: ClientCommand) => {
-  return '{}';
-};

@@ -22,6 +22,8 @@ export const init = (State: StateStore) => {
       return;
     }
     const { row, col } = customEvent.detail;
+    place_a_item(find_item_in_board(row, col), 'plan', State.player);
+    State.gameState = 'AWAIT_MOVE';
     State.socket?.send(
       JSON.stringify(
         makeClientCommand('PLACE_ITEM', {
@@ -29,8 +31,6 @@ export const init = (State: StateStore) => {
         }),
       ),
     );
-    place_a_item(find_item_in_board(row, col), 'plan', State.player);
-    State.gameState = 'AWAIT_MOVE';
   });
   const borderBeam = board?.querySelector('border-beam') as BorderBeam;
   borderBeam.setState(State);

@@ -1,4 +1,8 @@
-import { makeClientCommand, isValidServerCommand } from '@dongsi-omok/shared';
+import {
+  makeClientCommand,
+  isValidServerCommand,
+  type ServerCommand,
+} from '@dongsi-omok/shared';
 import { StateStore } from '../states/State';
 import { Board } from '../components/Board';
 export { Board };
@@ -16,12 +20,11 @@ const connectSocket = () => {
   State.player = 'black';
   State.gameState = 'IN_PROGRESS';
   State.socket = AISocket;
-  State.socket!.onmessage = (event) => {
+  State.socket!.onmessage = (event: MessageEvent<ServerCommand>) => {
+    const command = event.data;
     try {
-      const parsedMessage = JSON.parse(event.data.toString());
-      console.log(parsedMessage);
-      if (isValidServerCommand(parsedMessage)) {
-        handleServerCommand(parsedMessage, State);
+      if (isValidServerCommand(command)) {
+        handleServerCommand(command, State);
       }
     } catch (err) {
       console.error('Failed to parse message', err);

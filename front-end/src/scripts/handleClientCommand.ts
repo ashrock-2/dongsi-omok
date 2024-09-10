@@ -1,54 +1,26 @@
 import {
+  makeClientCommand,
   makeServerCommand,
+  mergePlaceItemCommand,
   type Board,
   type ClientCommand,
   type ClientCommandType,
-  type PlaceCommandQueue,
 } from '@dongsi-omok/shared';
 import { match } from 'ts-pattern';
 
-export const handleClientCommand = (
-  command: ClientCommand,
-  queue: PlaceCommandQueue,
-  board: Board,
-) => {
-  match(command)
+export const handleClientCommand = (command: ClientCommand, board: Board) => {
+  return match(command)
     .with({ id: 'PLACE_ITEM' }, (command: ClientCommandType<'PLACE_ITEM'>) => {
-      // match({
-      //   queueState: getCommandQueueState(queue),
-      //   item: command.payload.item,
-      // })
-      //   .with(
-      //     { queueState: 'EMPTY', item: 'black' },
-      //     { queueState: 'EMPTY', item: 'white' },
-      //     () => {
-      //       queue.push(command);
-      //     },
-      //   )
-      //   .with(
-      //     { queueState: 'BLACK', item: 'white' },
-      //     { queueState: 'WHITE', item: 'black' },
-      //     () => {
-      //       queue.push(command);
-      //       const placeItemCommand = mergePlaceItemCommand(queue);
-      //       const { isFinish, winner, winningCoordinates } =
-      //         updateBoardAndCheckWin(board, placeItemCommand);
-      //       room.clients.forEach((client) => {
-      //         client.send(JSON.stringify(placeItemCommand));
-      //         client.send(
-      //           JSON.stringify(
-      //             makeServerCommand('NOTIFY_WINNER', {
-      //               payload: { isFinish, winner, winningCoordinates },
-      //             }),
-      //           ),
-      //         );
-      //       });
-      //       queue.length = 0;
-      //     },
-      //   )
-      //   .otherwise(() => {
-      //     // do nothing
-      //   });
+      const { row, col } = command.payload;
+      const AIRow = String(Number(row) + 1);
+      // const AIRow = row;
+      const AICol = col;
+      return mergePlaceItemCommand([
+        command,
+        makeClientCommand('PLACE_ITEM', {
+          payload: { item: 'white', row: AIRow, col: AICol },
+        }),
+      ]);
     })
     .with({ id: 'CREATE_ROOM' }, () => {
       //
