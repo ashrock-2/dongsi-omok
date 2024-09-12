@@ -4,5 +4,9 @@
     "composite": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-  },
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["src/*"]
+    }
+  }
 }

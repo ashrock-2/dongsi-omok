@@ -2,13 +2,13 @@ import {
   makeClientCommand,
   ProhibitedGameStateForClientPlaceItem,
 } from '@dongsi-omok/shared';
-import { find_item_in_board, place_a_item } from '../utils';
-import { StateStore } from '../states/State';
-import { Board } from '../components/Board';
+import { find_item_in_board, place_a_item } from '@src/scripts/utils/boardUtil';
+import { StateStore } from '@src/scripts/states/State';
+import { Board } from '@src/scripts/components/Board';
 export { Board };
-import { Notification } from '../components/Notification';
+import { Notification } from '@src/scripts/components/Notification';
 export { Notification };
-import { BorderBeam } from '../components/BorderBeam';
+import { BorderBeam } from '@src/scripts/components/BorderBeam';
 export { BorderBeam };
 
 export const init = (State: StateStore) => {

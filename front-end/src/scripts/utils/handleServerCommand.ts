@@ -4,8 +4,8 @@ import type {
   ServerCommandType,
 } from '@dongsi-omok/shared';
 import { match } from 'ts-pattern';
-import type { StateStore } from '../states/State';
-import { find_item_in_board, place_a_item } from '../utils';
+import type { StateStore } from '@src/scripts/states/State';
+import { find_item_in_board, place_a_item } from '@src/scripts/utils/boardUtil';
 
 export const handleServerCommand = (
   command: ServerCommand,

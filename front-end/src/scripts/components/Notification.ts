@@ -1,9 +1,9 @@
 import { match, P } from 'ts-pattern';
-import { StateStore } from '../states/State';
+import { StateStore } from '@src/scripts/states/State';
 import type { GameState } from '@dongsi-omok/shared';
-import { applyParticleEffect } from './ParticleEffect';
+import { applyParticleEffect } from '@src/scripts/components/ParticleEffect';
 import { computePosition } from '@floating-ui/dom';
-import { copyable } from '../icons/svg';
+import { copyable } from '@src/scripts/icons/svg';
 
 const template = document.createElement('template');
 template.innerHTML = `

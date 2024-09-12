@@ -1,12 +1,12 @@
 import { makeClientCommand, isValidServerCommand } from '@dongsi-omok/shared';
-import { StateStore } from '../states/State';
-import { Board } from '../components/Board';
+import { StateStore } from '@src/scripts/states/State';
+import { Board } from '@src/scripts/components/Board';
 export { Board };
-import { Notification } from '../components/Notification';
+import { Notification } from '@src/scripts/components/Notification';
 export { Notification };
-import { BorderBeam } from '../components/BorderBeam';
-import { init } from './omok';
-import { handleServerCommand } from './handleServerCommand';
+import { BorderBeam } from '@src/scripts/components/BorderBeam';
+import { init } from '@src/scripts/utils/omok';
+import { handleServerCommand } from '@src/scripts/utils/handleServerCommand';
 export { BorderBeam };
 
 const State = new StateStore();

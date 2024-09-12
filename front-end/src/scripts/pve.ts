@@ -3,15 +3,15 @@ import {
   isValidServerCommand,
   type ServerCommand,
 } from '@dongsi-omok/shared';
-import { StateStore } from '../states/State';
-import { Board } from '../components/Board';
+import { StateStore } from '@src/scripts/states/State';
+import { Board } from '@src/scripts/components/Board';
 export { Board };
-import { Notification } from '../components/Notification';
+import { Notification } from '@src/scripts/components/Notification';
 export { Notification };
-import { BorderBeam } from '../components/BorderBeam';
-import { init } from './omok';
-import { handleServerCommand } from './handleServerCommand';
-import { AISocket } from './AISocket';
+import { BorderBeam } from '@src/scripts/components/BorderBeam';
+import { init } from '@src/scripts/utils/omok';
+import { handleServerCommand } from '@src/scripts/utils/handleServerCommand';
+import { AISocket } from '@src/scripts/utils/AISocket';
 export { BorderBeam };
 
 const State = new StateStore();

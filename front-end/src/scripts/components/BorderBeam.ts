@@ -1,5 +1,5 @@
 import { match } from 'ts-pattern';
-import { StateStore } from '../states/State';
+import { StateStore } from '@src/scripts/states/State';
 
 export class BorderBeam extends HTMLElement {
   private state: StateStore | null = null;

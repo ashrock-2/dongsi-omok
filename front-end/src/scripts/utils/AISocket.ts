@@ -1,5 +1,5 @@
 import { initBoard, isValidClientCommand } from '@dongsi-omok/shared';
-import { handleClientCommand } from './handleClientCommand';
+import { handleClientCommand } from '@src/scripts/utils/handleClientCommand';
 
 const board = initBoard();
 

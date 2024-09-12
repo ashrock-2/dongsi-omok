@@ -1,6 +1,5 @@
 import {
   makeClientCommand,
-  makeServerCommand,
   mergePlaceItemCommand,
   type Board,
   type ClientCommand,
@@ -26,6 +25,9 @@ export const handleClientCommand = (command: ClientCommand, board: Board) => {
       //
     })
     .with({ id: 'JOIN_ROOM' }, () => {
+      //
+    })
+    .with({ id: 'JOIN_QUEUE' }, () => {
       //
     })
     .exhaustive();
