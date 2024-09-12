@@ -7,13 +7,14 @@ const server = createServer();
 const wss = new WebSocketServer({ server });
 const rooms: Rooms = new Map();
 const clientMap: Map<WebSocket, string> = new Map();
+const gameQueue: Array<WebSocket> = [];
 
 wss.on('connection', (ws) => {
   ws.on('message', (message) => {
     try {
       const parsedMessage = JSON.parse(message.toString());
       if (isValidClientCommand(parsedMessage)) {
-        handleClientCommand(parsedMessage, ws, rooms, clientMap);
+        handleClientCommand(parsedMessage, ws, rooms, clientMap, gameQueue);
       }
     } catch (err) {
       console.error('Failed to parse message', err);

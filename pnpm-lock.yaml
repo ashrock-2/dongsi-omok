@@ -23,6 +23,9 @@ importers:
       '@dongsi-omok/shared':
         specifier: workspace:^
         version: link:../shared
+      async-mutex:
+        specifier: ^0.5.0
+        version: 0.5.0
       bun:
         specifier: ^1.1.24
         version: 1.1.24
@@ -769,6 +772,9 @@ packages:
     engines: {node: ^18.17.1 || ^20.3.0 || >=21.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
 
+  async-mutex@0.5.0:
+    resolution: {integrity: sha512-1A94B18jkJ3DYq284ohPxoXbfTA5HsQ7/Mf4DEhcyLx3Bz27Rh59iScbB6EPiP+B+joue6YCxcMXSbFC1tZKwA==}
+
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
     engines: {node: '>= 0.4'}
@@ -804,7 +810,6 @@ packages:
 
   bun@1.1.24:
     resolution: {integrity: sha512-vZt5zNVaoNTSlNprdVdQVZInBcGC2QSik6o9ZsMzuYiiUEAEqpRwwMXAYDUN85mt2FNnsGvmk/8xVlUXS7IzEw==}
-    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -2790,6 +2795,10 @@ snapshots:
       - supports-color
       - terser
       - typescript
+
+  async-mutex@0.5.0:
+    dependencies:
+      tslib: 2.6.3
 
   axobject-query@4.1.0: {}
 

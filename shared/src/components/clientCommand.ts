@@ -4,6 +4,7 @@ export const ClientCommands = {
   PLACE_ITEM: 'PLACE_ITEM',
   CREATE_ROOM: 'CREATE_ROOM',
   JOIN_ROOM: 'JOIN_ROOM',
+  JOIN_QUEUE: 'JOIN_QUEUE',
 } as const;
 export type KeyOfClientCommands = keyof typeof ClientCommands;
 export type ClientCommandType<COMMAND extends keyof typeof ClientCommands> = {
@@ -23,6 +24,7 @@ type ClientCommandPayloadMapType = {
   [ClientCommands.JOIN_ROOM]: {
     roomId: string;
   };
+  [ClientCommands.JOIN_QUEUE]: {};
 };
 
 export type ClientCommandPayloadRegistry = {

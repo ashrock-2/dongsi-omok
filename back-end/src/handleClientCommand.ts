@@ -9,12 +9,14 @@ import {
 import { match } from 'ts-pattern';
 import { generateRoomId, getCommandQueueState, type Rooms } from './util';
 import type WebSocket from 'ws';
+import { Mutex } from 'async-mutex';
 
 export const handleClientCommand = (
   command: ClientCommand,
   ws: WebSocket,
   rooms: Rooms,
   clientMap: Map<WebSocket, string>,
+  gameQueue: Array<WebSocket>,
 ) => {
   match(command)
     .with({ id: 'PLACE_ITEM' }, (command: ClientCommandType<'PLACE_ITEM'>) => {
@@ -118,5 +120,39 @@ export const handleClientCommand = (
           });
       },
     )
+    .with({ id: 'JOIN_QUEUE' }, () => {
+      const mutex = new Mutex();
+      mutex.acquire().then((release) => {
+        try {
+          gameQueue.push(ws);
+          if (gameQueue.length === 2) {
+            const roomId = generateRoomId();
+            rooms.set(roomId, {
+              clients: [...gameQueue],
+              queue: [],
+              board: initBoard(),
+            });
+            gameQueue.forEach((ws, idx) => {
+              clientMap.set(ws, roomId);
+              ws.send(
+                JSON.stringify(
+                  makeServerCommand('SET_PLAYER_COLOR', {
+                    payload: { color: idx === 0 ? 'black' : 'white' },
+                  }),
+                ),
+              );
+              ws.send(
+                JSON.stringify(
+                  makeServerCommand('START_GAME', { payload: {} }),
+                ),
+              );
+            });
+            gameQueue.splice(0, 2);
+          }
+        } finally {
+          release();
+        }
+      });
+    })
     .exhaustive();
 };
