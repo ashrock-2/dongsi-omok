@@ -7,10 +7,13 @@ import Layout from '../layouts/BaseLayout.astro';
     <h1>동시오목</h1>
     <ul>
       <li>
-        <a href="pve">AI</a>
+        <a href="pvp">방만들기</a>
       </li>
       <li>
-        <a href="pvp">PVP</a>
+        <a href="random">랜덤매칭</a>
+      </li>
+      <li>
+        <a href="pve">인공지능</a>
       </li>
     </ul>
   </main>
@@ -29,10 +32,11 @@ import Layout from '../layouts/BaseLayout.astro';
   }
   a {
     color: var(--text-color);
+    text-decoration: none;
     padding: 4px 8px;
     border-radius: 4px;
     &:hover {
-      opacity: 0.5;
+      opacity: 0.8;
     }
   }
 </style>
