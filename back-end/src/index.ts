@@ -21,7 +21,11 @@ wss.on('connection', (ws) => {
     }
   });
 
-  ws.on('close', (code) => {
+  ws.on('close', () => {
+    const queuedClientIdx = gameQueue.findIndex((client) => client === ws);
+    if (queuedClientIdx !== -1) {
+      gameQueue.splice(queuedClientIdx, 1);
+    }
     const roomId = clientMap.get(ws);
     if (!roomId) return;
     const room = rooms.get(roomId);
