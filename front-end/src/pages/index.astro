@@ -1,14 +1,38 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import Layout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout>
-  <ul>
-    <li>
-      <a href="/pve">AI</a>
-    </li>
-    <li>
-      <a href="pvp">PVP</a>
-    </li>
-  </ul>
-</BaseLayout>
+<Layout>
+  <main>
+    <h1>동시오목</h1>
+    <ul>
+      <li>
+        <a href="pve">AI</a>
+      </li>
+      <li>
+        <a href="pvp">PVP</a>
+      </li>
+    </ul>
+  </main>
+</Layout>
+<style>
+  h1 {
+    color: var(--text-color);
+  }
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  li {
+    color: var(--text-color);
+  }
+  a {
+    color: var(--text-color);
+    padding: 4px 8px;
+    border-radius: 4px;
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+</style>

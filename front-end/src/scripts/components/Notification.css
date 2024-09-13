@@ -4,7 +4,7 @@
   padding: 8px 6px;
   border-radius: 6px;
   z-index: 1;
-  color: hsl(0, 47%, 94%);
+  color: var(--text-color);
   position: fixed;
   left: 50%;
   top: 50%;
