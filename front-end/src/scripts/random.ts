@@ -16,6 +16,7 @@ let reconnectAttempts = 0;
 const connectSocket = () => {
   State.socket = new WebSocket(backendUrl);
   State.socket.onopen = (e) => {
+    State.gameState = 'WAITING_FOR_OPPONENT';
     State.socket?.send(
       JSON.stringify(makeClientCommand('JOIN_QUEUE', { payload: {} })),
     );
