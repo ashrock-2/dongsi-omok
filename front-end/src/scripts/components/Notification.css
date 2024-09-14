@@ -2,7 +2,7 @@
   text-align: center;
   background-color: hsla(0, 0%, 0%, 42%);
   animation: blink 3s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  padding: 8px 6px;
+  padding: 8px 12px;
   border-radius: 6px;
   z-index: 1;
   color: var(--text-color);
