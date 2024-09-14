@@ -37,6 +37,9 @@ export const mergePlaceItemCommand = (queue: PlaceCommandQueue) =>
       }),
     );
 
+export const findColIndex = (col: (typeof ALPHABETS)[number]) =>
+  ALPHABETS.findIndex((alphabet) => alphabet === col);
+
 export const updateBoardAndCheckWin = (
   board: Board,
   placeItemCommands: ServerCommandType<'PLACE_ITEM'>,
@@ -47,7 +50,7 @@ export const updateBoardAndCheckWin = (
       (commands) => {
         const { item, row: _row, col: _col } = commands.payload[0];
         const row = Number(_row);
-        const col = ALPHABETS.findIndex((alphabet) => alphabet === _col);
+        const col = findColIndex(_col);
 
         const { isWin, winningCoordinates } = checkIsWin(board, row, col);
         return {
@@ -66,9 +69,9 @@ export const updateBoardAndCheckWin = (
         ],
       }) => {
         const row1 = Number(_row1);
-        const col1 = ALPHABETS.findIndex((alphabet) => alphabet === _col1);
+        const col1 = findColIndex(_col1);
         const row2 = Number(_row2);
-        const col2 = ALPHABETS.findIndex((alphabet) => alphabet === _col2);
+        const col2 = findColIndex(_col2);
 
         board[row1][col1] = item1;
         board[row2][col2] = item2;

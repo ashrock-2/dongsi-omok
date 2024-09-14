@@ -1,4 +1,5 @@
 import {
+  ALPHABETS,
   makeClientCommand,
   ProhibitedGameStateForClientPlaceItem,
 } from '@dongsi-omok/shared';
@@ -27,7 +28,11 @@ export const init = (State: StateStore) => {
     State.socket?.send(
       JSON.stringify(
         makeClientCommand('PLACE_ITEM', {
-          payload: { item: State.player, row, col },
+          payload: {
+            item: State.player,
+            row,
+            col: col as (typeof ALPHABETS)[number],
+          },
         }),
       ),
     );

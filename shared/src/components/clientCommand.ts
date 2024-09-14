@@ -1,4 +1,4 @@
-import type { BoardItem, GameState, Player } from './common';
+import type { ALPHABETS, BoardItem, GameState, Player } from './common';
 
 export const ClientCommands = {
   PLACE_ITEM: 'PLACE_ITEM',
@@ -18,7 +18,7 @@ type ClientCommandPayloadMapType = {
   [ClientCommands.PLACE_ITEM]: {
     item: BoardItem;
     row: string;
-    col: string;
+    col: (typeof ALPHABETS)[number];
   };
   [ClientCommands.CREATE_ROOM]: {};
   [ClientCommands.JOIN_ROOM]: {

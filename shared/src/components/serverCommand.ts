@@ -1,4 +1,4 @@
-import type { BoardItem, Player } from './common';
+import type { ALPHABETS, BoardItem, Player } from './common';
 
 export const ServerCommands = {
   PLACE_ITEM: 'PLACE_ITEM',
@@ -19,7 +19,7 @@ type ServerCommandPayloadMapType = {
   [ServerCommands.PLACE_ITEM]: Array<{
     item: BoardItem;
     row: string;
-    col: string;
+    col: (typeof ALPHABETS)[number];
   }>;
   [ServerCommands.SET_PLAYER_COLOR]: {
     color: Player;
