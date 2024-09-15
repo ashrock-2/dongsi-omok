@@ -5,7 +5,8 @@ import Layout from '../layouts/IndexLayout.astro';
 <Layout>
   <Fragment slot={'bg'}>
     <h1>
-      <span data-color="black">동시</span><span data-color="white">오목</span>
+      <span data-color="black">동시</span>
+      <span data-color="white">오목</span>
     </h1>
     <ul>
       <li>
@@ -58,6 +59,7 @@ import Layout from '../layouts/IndexLayout.astro';
 <style>
   h1 {
     color: var(--text-color);
+    gap: 0;
   }
   span[data-color='black'] {
     color: black;
