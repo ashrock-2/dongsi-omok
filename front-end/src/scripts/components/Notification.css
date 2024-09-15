@@ -1,7 +1,9 @@
 .container {
   text-align: center;
   background-color: hsla(0, 0%, 0%, 42%);
-  animation: blink 3s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  animation:
+    blink 3s cubic-bezier(0.5, 0, 0.5, 1) infinite,
+    slide-up 0.3s 0.2s both;
   padding: 8px 12px;
   border-radius: 6px;
   z-index: 1;
@@ -47,5 +49,16 @@
   }
   50% {
     background-color: hsla(0, 0%, 0%, 42%);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50% -50%);
+    opacity: 1;
   }
 }

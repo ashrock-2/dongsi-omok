@@ -45,7 +45,18 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       opacity: 0.8;
     }
   }
+  @keyframes slide-up {
+    from {
+      transform: translateY(50%);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
   omok-board {
+    animation: slide-up 0.3s both;
     width: 100%;
     max-width: 600px;
     aspect-ratio: 1;
