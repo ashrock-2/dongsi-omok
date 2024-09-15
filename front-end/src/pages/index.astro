@@ -6,14 +6,17 @@ import Layout from '../layouts/BaseLayout.astro';
   <main>
     <h1>동시오목</h1>
     <ul>
-      <li>
+      <!-- <li>
         <a href="pvp">방만들기</a>
-      </li>
+      </li> -->
       <li>
         <a href="random">랜덤매칭</a>
       </li>
       <li>
         <a href="pve">인공지능</a>
+      </li>
+      <li>
+        <a href="/">규칙설명</a>
       </li>
     </ul>
   </main>
@@ -25,19 +28,20 @@ import Layout from '../layouts/BaseLayout.astro';
   ul {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-  }
-  li {
-    color: var(--text-color);
+    gap: 24px;
+    list-style-type: none;
+    padding: 0;
+    align-items: center;
   }
   a {
     color: var(--text-color);
     text-decoration: none;
+    background: hsl(0, 30%, 20%);
     padding: 4px 8px;
-    border-radius: 4px;
-    transition: opacity 0.3s cubic-bezier(0.5, 0, 0.5, 1);
+    border-radius: 8px;
     &:hover {
       opacity: 0.8;
     }
+    transition: opacity 0.3s cubic-bezier(0.5, 0, 0.5, 1);
   }
 </style>

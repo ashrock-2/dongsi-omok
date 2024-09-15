@@ -141,7 +141,7 @@ const getMainText = (state: StateStore) =>
         gameState: 'WAITING_FOR_OPPONENT',
         roomId: P.when((roomId) => roomId === null),
       },
-      () => `방을 생성 중입니다...`,
+      () => `상대방을 기다리고 있습니다...`,
     )
     .with({ gameState: 'LEAVE_OPPONENT' }, () => '상대방이 나갔습니다.')
     .otherwise(() => '');
