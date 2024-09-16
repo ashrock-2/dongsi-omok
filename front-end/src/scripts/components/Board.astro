@@ -4,9 +4,37 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
 
 <omok-board>
   {
+    Array.from({ length: BOARD_SIZE }, (_, row) => (
+      <>
+        <span
+          style={`--row:${BOARD_SIZE - row + 1};--col:1;`}
+          class="row flex-end"
+        >
+          {row + 1}
+        </span>
+        <span style={`--row:${BOARD_SIZE - row + 1};`} class="row">
+          {row + 1}
+        </span>
+      </>
+    ))
+  }
+  {
+    ALPHABETS.slice(0, BOARD_SIZE).map((col, idx) => (
+      <>
+        <span style={`--col:${idx + 2};--row:${BOARD_SIZE + 2}`} class="col">
+          {col}
+        </span>
+        <span style={`--col:${idx + 2}`} class="col flex-end">
+          {col}
+        </span>
+      </>
+    ))
+  }
+  {
     Array.from({ length: BOARD_SIZE }, (_, row) =>
-      ALPHABETS.slice(0, BOARD_SIZE).map((col) => (
+      ALPHABETS.slice(0, BOARD_SIZE).map((col, colIdx) => (
         <button
+          style={`--row:${row + 2};--col:${colIdx + 2}`}
           data-row={row}
           data-col={col}
           aria-label={`row:${row + 1} col:${col}`}
@@ -61,11 +89,30 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     max-width: 600px;
     aspect-ratio: 1;
     display: grid;
-    grid-template-columns: repeat(var(--boardSize), 1fr);
-    grid-template-rows: repeat(var(--boardSize), 1fr);
+    grid-template-columns: repeat(calc(var(--boardSize) + 2), 1fr);
+    grid-template-rows: repeat(calc(var(--boardSize) + 2), 1fr);
     background-color: hsl(34, 46%, 56%);
     border-radius: 8px;
     position: relative;
+  }
+  .row,
+  .col {
+    font-size: 0.75rem;
+    color: hsla(0, 0%, 12%, 94%);
+  }
+  .flex-end {
+    justify-self: flex-end;
+    align-self: flex-end;
+  }
+  .row {
+    grid-column: var(--col) / span 1;
+    grid-row: var(--row) / span 1;
+    align-self: center;
+  }
+  .col {
+    grid-column: var(--col) / span 1;
+    grid-row: var(--row) / span 1;
+    justify-self: center;
   }
   border-beam {
     pointer-events: none;
@@ -119,6 +166,8 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     margin: 0;
   }
   button {
+    grid-column: var(--col) / span 1;
+    grid-row: var(--row) / span 1;
     margin: 0;
     padding: 0;
     background-color: transparent;
