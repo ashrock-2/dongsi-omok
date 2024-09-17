@@ -1,4 +1,4 @@
-import { type BoardItem, type Player } from '@dongsi-omok/shared';
+import { ALPHABETS, type BoardItem, type Player } from '@dongsi-omok/shared';
 
 export const find_item_in_board = (row: string, col: string) =>
   document.querySelector(`[data-row="${row}"][data-col="${col}"]`)!;
@@ -12,4 +12,12 @@ export const place_a_item = (
   button.classList.add(item);
   button.classList.add(player);
   button.setAttribute('disabled', 'true');
+};
+export const highlight_winning_coordinates = (
+  coordinates: Array<{ row: number; col: number }>,
+) => {
+  coordinates.forEach(({ row, col }) => {
+    const button = find_item_in_board(row.toString(), ALPHABETS[col]);
+    button.classList.add('winning');
+  });
 };

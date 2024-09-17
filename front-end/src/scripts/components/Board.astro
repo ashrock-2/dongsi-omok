@@ -83,6 +83,14 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
       opacity: 1;
     }
   }
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
   omok-board {
     animation: slide-up 0.3s both;
     width: 100%;
@@ -164,6 +172,9 @@ import { BOARD_SIZE, ALPHABETS } from '@dongsi-omok/shared';
     transform: translate(-52%, -52%);
     padding: 0;
     margin: 0;
+  }
+  button.winning {
+    animation: rotate 2s linear infinite;
   }
   button {
     grid-column: var(--col) / span 1;

@@ -5,7 +5,11 @@ import type {
 } from '@dongsi-omok/shared';
 import { match } from 'ts-pattern';
 import type { StateStore } from '@src/scripts/states/State';
-import { find_item_in_board, place_a_item } from '@src/scripts/utils/boardUtil';
+import {
+  find_item_in_board,
+  highlight_winning_coordinates,
+  place_a_item,
+} from '@src/scripts/utils/boardUtil';
 
 export const handleServerCommand = (
   command: ServerCommand,
@@ -49,11 +53,13 @@ export const handleServerCommand = (
               State.winner = winner;
               State.gameState = 'GAME_OVER';
               State.winningCoordinates = winningCoordinates!;
+              highlight_winning_coordinates(winningCoordinates!);
             },
           )
           .with({ isFinish: true, winner: null }, ({ winningCoordinates }) => {
             State.gameState = 'GAME_OVER';
             State.winningCoordinates = winningCoordinates!;
+            highlight_winning_coordinates(winningCoordinates!);
           })
           .otherwise(() => {
             // do nothing
