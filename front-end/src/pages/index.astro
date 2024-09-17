@@ -1,88 +1,13 @@
 ---
 import Layout from '../layouts/IndexLayout.astro';
+import MenuContent from '../scripts/components/MenuContent.astro';
 ---
 
 <Layout>
   <Fragment slot={'bg'}>
-    <h1>
-      <span data-color="black">동시</span>
-      <span data-color="black">오목</span>
-    </h1>
-    <ul>
-      <li>
-        <a data-astro-reload href="random">
-          <span data-color="white">랜덤</span>
-          <span data-color="white">매칭</span>
-        </a>
-      </li>
-      <li>
-        <a data-astro-reload href="pve">
-          <span data-color="white">인공</span>
-          <span data-color="white">지능</span></a
-        >
-      </li>
-      <li>
-        <a href="/">
-          <span data-color="white">규칙</span>
-          <span data-color="white">설명</span>
-        </a>
-      </li>
-    </ul>
+    <MenuContent titleColor="black" linkColor="white" />
   </Fragment>
   <Fragment slot={'pt'}>
-    <h1>
-      <span data-color="white">동시</span>
-      <span data-color="white">오목</span>
-    </h1>
-    <ul>
-      <li>
-        <a data-astro-reload href="random">
-          <span data-color="black">랜덤</span>
-          <span data-color="black">매칭</span>
-        </a>
-      </li>
-      <li>
-        <a data-astro-reload href="pve">
-          <span data-color="black">인공</span>
-          <span data-color="black">지능</span></a
-        >
-      </li>
-      <li>
-        <a href="/">
-          <span data-color="black">규칙</span>
-          <span data-color="black">설명</span></a
-        >
-      </li>
-    </ul>
+    <MenuContent titleColor="white" linkColor="black" />
   </Fragment>
 </Layout>
-<style>
-  h1 {
-    font-size: 4rem;
-    color: var(--text-color);
-    gap: 0;
-  }
-  span[data-color='black'] {
-    color: black;
-  }
-  ul {
-    display: grid;
-    justify-content: center;
-    align-content: center;
-    gap: 24px;
-    list-style-type: none;
-    padding: 0;
-    align-items: center;
-  }
-  a {
-    color: var(--text-color);
-    text-decoration: none;
-    background: hsla(0, 0%, 0%, 20%);
-    padding: 4px 8px;
-    border-radius: 8px;
-    &:hover {
-      opacity: 0.8;
-    }
-    transition: opacity 0.3s cubic-bezier(0.5, 0, 0.5, 1);
-  }
-</style>
