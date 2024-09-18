@@ -18,23 +18,23 @@ const connectSocket = () => {
   State.socket.onopen = (e) => {
     const searchParams = new URLSearchParams(window.location.search);
     const roomId = searchParams.get('roomId');
-    if (!roomId) {
-      State.socket?.send(
-        JSON.stringify(
-          makeClientCommand('CREATE_ROOM', {
-            payload: {},
-          }),
-        ),
-      );
-    } else {
-      State.socket?.send(
-        JSON.stringify(
-          makeClientCommand('JOIN_ROOM', {
-            payload: { roomId },
-          }),
-        ),
-      );
-    }
+    // if (!roomId) {
+    //   State.socket?.send(
+    //     JSON.stringify(
+    //       makeClientCommand('CREATE_ROOM', {
+    //         payload: {},
+    //       }),
+    //     ),
+    //   );
+    // } else {
+    //   State.socket?.send(
+    //     JSON.stringify(
+    //       makeClientCommand('JOIN_ROOM', {
+    //         payload: { roomId },
+    //       }),
+    //     ),
+    //   );
+    // }
     State.socket!.onclose = (event) => {
       if (!event.wasClean && reconnectAttempts < 3) {
         setTimeout(() => {
