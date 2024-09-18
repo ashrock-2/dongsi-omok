@@ -36,9 +36,9 @@ export const handleClientCommand = (command: ClientCommand, board: Board) => {
       }
       const mergedCommand = mergePlaceItemCommand([
         command,
-        makeClientCommand('PLACE_ITEM', {
-          payload: { item: 'white', row, col },
-        }),
+        // makeClientCommand('PLACE_ITEM', {
+        // payload: { item: 'white', row, col },
+        // }),
       ]);
       const { winner, winningCoordinates, isFinish } = updateBoardAndCheckWin(
         board,

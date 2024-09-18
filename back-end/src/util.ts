@@ -1,11 +1,24 @@
-import { type Board, type PlaceCommandQueue } from '@dongsi-omok/shared';
+import {
+  type Board,
+  type PlaceCommandQueue,
+  type ServerCommand,
+} from '@dongsi-omok/shared';
+import type { Response } from 'express';
 import { match } from 'ts-pattern';
-import type WebSocket from 'ws';
 
 export type Rooms = Map<
   string,
-  { clients: Array<WebSocket>; queue: PlaceCommandQueue; board: Board }
+  {
+    clients: Array<{ clientId: string; sseResponse: Response }>;
+    queue: PlaceCommandQueue;
+    board: Board;
+  }
 >;
+
+/** Map<clientId, roomId> */
+export type ClientMap = Map<string, string>;
+/** Array<clientId> */
+export type GameQueue = Array<{ clientId: string; sseResponse: Response }>;
 
 export const getCommandQueueState = (queue: PlaceCommandQueue) =>
   match(queue)
@@ -29,3 +42,10 @@ export const getCommandQueueState = (queue: PlaceCommandQueue) =>
     .otherwise(() => 'FULL');
 
 export const generateRoomId = () => Math.random().toString(36).substring(2, 9);
+
+export const sendServerCommand = (
+  res: Response,
+  command: ServerCommand,
+): void => {
+  res.write(`data: ${JSON.stringify(command)}\n\n`);
+};

@@ -9,7 +9,7 @@ export const ClientCommands = {
 export type KeyOfClientCommands = keyof typeof ClientCommands;
 export type ClientCommandType<COMMAND extends keyof typeof ClientCommands> = {
   id: COMMAND;
-  playerId?: string;
+  playerId: string;
   payload: ClientCommandPayloadRegistry[COMMAND];
 };
 export type ClientCommand = ClientCommandType<KeyOfClientCommands>;
@@ -50,7 +50,7 @@ export const makeClientCommand = <T extends KeyOfClientCommands>(
     playerId,
     payload,
   }: {
-    playerId?: ClientCommand['playerId'];
+    playerId: ClientCommand['playerId'];
     payload: ClientCommandPayloadRegistry[T];
   },
 ) => {

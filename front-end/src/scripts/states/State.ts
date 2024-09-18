@@ -4,6 +4,7 @@ export class StateStore extends EventTarget {
   private _player: Player | null = null;
   private _gameState: GameState = 'WAITING_FOR_OPPONENT';
   private _roomId: string | null = null;
+  private _playerId: string | null = null;
   private _winner: Player | null = null;
   private _winningCoordinates: Array<{ row: number; col: number }> = [];
   private _socket: WebSocket | null = null;
@@ -37,6 +38,14 @@ export class StateStore extends EventTarget {
   set roomId(val: string | null) {
     this._roomId = val;
     this.dispatchEvent(new Event('stateChange'));
+  }
+
+  get playerId() {
+    return this._playerId;
+  }
+
+  set playerId(val: string | null) {
+    this._playerId = val;
   }
 
   get winningCoordinates() {

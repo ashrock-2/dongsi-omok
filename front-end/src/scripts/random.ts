@@ -7,40 +7,21 @@ export { Notification };
 import { BorderBeam } from '@src/scripts/components/BorderBeam';
 import { init } from '@src/scripts/utils/omok';
 import { handleServerCommand } from '@src/scripts/utils/handleServerCommand';
+import { connectSSE } from './utils/apiClient';
 export { BorderBeam };
 
 const State = new StateStore();
-const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'ws://localhost:8080';
-let reconnectAttempts = 0;
-
-const connectSocket = () => {
-  State.socket = new WebSocket(backendUrl);
-  State.socket.onopen = (e) => {
-    State.gameState = 'WAITING_FOR_OPPONENT';
-    State.socket?.send(
-      JSON.stringify(makeClientCommand('JOIN_QUEUE', { payload: {} })),
-    );
-    State.socket!.onclose = (event) => {
-      if (!event.wasClean && reconnectAttempts < 3) {
-        setTimeout(() => {
-          connectSocket();
-          reconnectAttempts++;
-        }, Math.random() * 1000);
-      }
-    };
-    State.socket!.onmessage = (event) => {
-      try {
-        const parsedMessage = JSON.parse(event.data.toString());
-        console.log(parsedMessage);
-        if (isValidServerCommand(parsedMessage)) {
-          handleServerCommand(parsedMessage, State);
-        }
-      } catch (err) {
-        console.error('Failed to parse message', err);
-      }
-    };
+const initSSE = async () => {
+  const eventSource = connectSSE((data) => {
+    console.log(data);
+    if (isValidServerCommand(data)) {
+      handleServerCommand(data, State);
+    }
+  });
+  return () => {
+    eventSource.close();
   };
 };
 
-connectSocket();
+initSSE();
 init(State);

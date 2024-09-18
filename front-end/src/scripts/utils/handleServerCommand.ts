@@ -32,7 +32,8 @@ export const handleServerCommand = (
         console.log(`you are ${State.player}`);
       },
     )
-    .with({ id: 'START_GAME' }, () => {
+    .with({ id: 'START_GAME' }, (command: ServerCommandType<'START_GAME'>) => {
+      State.playerId = command.payload.playerId;
       State.gameState = 'IN_PROGRESS';
     })
     .with(
