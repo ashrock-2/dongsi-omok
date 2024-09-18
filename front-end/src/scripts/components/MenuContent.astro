@@ -13,19 +13,19 @@ const { titleColor, linkColor } = Astro.props;
 </h1>
 <ul>
   <li>
-    <a data-astro-reload href="random">
-      <span data-color={linkColor}>랜덤</span>
-      <span data-color={linkColor}>매칭</span>
+    <a data-color={linkColor} data-astro-reload href="random">
+      <span data-color={linkColor}>게임</span>
+      <span data-color={linkColor}>시작</span>
     </a>
   </li>
-  <li>
+  <!-- <li>
     <a data-astro-reload href="pve">
       <span data-color={linkColor}>인공</span>
       <span data-color={linkColor}>지능</span>
     </a>
-  </li>
+  </li> -->
   <li>
-    <a href="/">
+    <a data-color={linkColor} href="/">
       <span data-color={linkColor}>규칙</span>
       <span data-color={linkColor}>설명</span>
     </a>
@@ -42,23 +42,28 @@ const { titleColor, linkColor } = Astro.props;
     display: grid;
     justify-content: center;
     align-content: center;
-    gap: 24px;
+    gap: 36px;
     list-style-type: none;
     padding: 0;
     align-items: center;
   }
   a {
     color: var(--text-color);
+    font-size: 1.5rem;
     text-decoration: none;
-    background: hsla(0, 0%, 0%, 20%);
-    padding: 4px 8px;
-    border-radius: 8px;
     &:hover {
       opacity: 0.8;
     }
+    border: 1px solid var(--text-color);
+    border-radius: 8px;
+    padding: 6px 12px;
     transition: opacity 0.3s cubic-bezier(0.5, 0, 0.5, 1);
   }
+  a[data-color='black'] {
+    color: hsl(0, 0%, 8%);
+    border-color: hsl(0, 0%, 8%);
+  }
   span[data-color='black'] {
-    color: black;
+    color: hsl(0, 0%, 8%);
   }
 </style>
