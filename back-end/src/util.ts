@@ -1,11 +1,20 @@
 import { type Board, type PlaceCommandQueue } from '@dongsi-omok/shared';
+import type { Response } from 'express';
 import { match } from 'ts-pattern';
-import type WebSocket from 'ws';
 
 export type Rooms = Map<
   string,
-  { clients: Array<WebSocket>; queue: PlaceCommandQueue; board: Board }
+  {
+    clients: Array<{ clientId: string; sseResponse: Response }>;
+    queue: PlaceCommandQueue;
+    board: Board;
+  }
 >;
+
+/** Map<clientId, roomId> */
+export type ClientMap = Map<string, string>;
+/** Array<clientId> */
+export type GameQueue = Array<string>;
 
 export const getCommandQueueState = (queue: PlaceCommandQueue) =>
   match(queue)
