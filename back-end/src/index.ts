@@ -1,6 +1,16 @@
-import { isValidClientCommand, makeServerCommand } from '@dongsi-omok/shared';
+import {
+  initBoard,
+  isValidClientCommand,
+  makeServerCommand,
+} from '@dongsi-omok/shared';
 import { createServer } from 'http';
-import { type ClientMap, type GameQueue, type Rooms } from './util';
+import {
+  generateRoomId,
+  sendServerCommand,
+  type ClientMap,
+  type GameQueue,
+  type Rooms,
+} from './util';
 import { handleClientCommand } from './handleClientCommand';
 import express from 'express';
 
@@ -28,56 +38,61 @@ app.get('/api/events', (req, res) => {
     'Access-Control-Allow-Origin': 'http://localhost:4321',
     'Access-Control-Allow-Credentials': 'true',
   };
-  // console.log(req.body);
   res.writeHead(200, headers);
-  const intervalId = setInterval(() => {
-    res.write(
-      `data: ${JSON.stringify({ time: new Date().toISOString() })}\n\n`,
+  const clientId = generateRoomId();
+  gameQueue.push({ clientId, sseResponse: res });
+  if (gameQueue.length === 2) {
+    const roomId = generateRoomId();
+    rooms.set(roomId, {
+      clients: [...gameQueue],
+      queue: [],
+      board: initBoard(),
+    });
+    gameQueue.forEach(({ clientId, sseResponse }, idx) => {
+      clientMap.set(clientId, roomId);
+      sendServerCommand(
+        sseResponse,
+        makeServerCommand('SET_PLAYER_COLOR', {
+          payload: { color: idx === 0 ? 'black' : 'white' },
+        }),
+      ),
+        sendServerCommand(
+          sseResponse,
+          makeServerCommand('START_GAME', { payload: {} }),
+        );
+    });
+    gameQueue.splice(0, 2);
+  }
+  // TODO: 브라우저 닫아도 이벤트 호출 안되고 있음.
+  req.on('close', () => {
+    const queuedClientIdx = gameQueue.findIndex(
+      ({ clientId: _clientId }) => _clientId === clientId,
     );
-  }, 1000);
+    console.log(queuedClientIdx);
+    if (queuedClientIdx !== -1) {
+      gameQueue.splice(queuedClientIdx, 1);
+    }
+    const roomId = clientMap.get(clientId);
+    if (!roomId) return;
+    const room = rooms.get(roomId);
+    if (!room) return;
 
-  // res.json(
-  //   makeServerCommand('SET_PLAYER_COLOR', { payload: { color: 'black' } }),
-  // );
-  // gameQueue.push(res);
-  req.on('close', () => {});
+    const idx = room.clients.findIndex(
+      ({ clientId: _clientId }) => _clientId === clientId,
+    );
+    if (idx !== -1) {
+      room.clients.splice(idx, 1);
+      const [client] = room.clients;
+      sendServerCommand(
+        res,
+        makeServerCommand('LEAVE_OPPONENT', { payload: {} }),
+      );
+    }
+    if (room.clients.length === 0) {
+      rooms.delete(roomId);
+    }
+  });
 });
-
-// wss.on('connection', (ws) => {
-//   ws.on('message', (message) => {
-//     try {
-//       const parsedMessage = JSON.parse(message.toString());
-//       if (isValidClientCommand(parsedMessage)) {
-//         handleClientCommand(parsedMessage, ws, rooms, clientMap, gameQueue);
-//       }
-//     } catch (err) {
-//       console.error('Failed to parse message', err);
-//     }
-//   });
-
-//   ws.on('close', () => {
-//     const queuedClientIdx = gameQueue.findIndex((client) => client === ws);
-//     if (queuedClientIdx !== -1) {
-//       gameQueue.splice(queuedClientIdx, 1);
-//     }
-//     const roomId = clientMap.get(ws);
-//     if (!roomId) return;
-//     const room = rooms.get(roomId);
-//     if (!room) return;
-
-//     const idx = room.clients.findIndex((client) => client === ws);
-//     if (idx !== -1) {
-//       room.clients.splice(idx, 1);
-//       const [client] = room.clients;
-//       client?.send(
-//         JSON.stringify(makeServerCommand('LEAVE_OPPONENT', { payload: {} })),
-//       );
-//     }
-//     if (room.clients.length === 0) {
-//       rooms.delete(roomId);
-//     }
-//   });
-// });
 
 const PORT = Number(process.env.PORT) || 8080;
 server.listen(PORT, '0.0.0.0', () => {
