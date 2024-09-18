@@ -24,10 +24,10 @@ import { ViewTransitions } from 'astro:transitions';
       src:
         url('/fonts/IropkeBatangM.woff') format('woff'),
         url('/fonts/IropkeBatangM.ttf') format('truetype');
-      font-display: swap;
+      font-display: fallback;
     }
     body {
-      font-family: 'IropkeBatang', Impact;
+      font-family: 'IropkeBatang', Impact, serif;
       height: 100dvh;
       overflow: hidden;
       margin: 0;
