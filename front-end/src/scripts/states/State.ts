@@ -7,7 +7,6 @@ export class StateStore extends EventTarget {
   private _playerId: string | null = null;
   private _winner: Player | null = null;
   private _winningCoordinates: Array<{ row: number; col: number }> = [];
-  private _socket: WebSocket | null = null;
 
   constructor() {
     super();
@@ -57,18 +56,18 @@ export class StateStore extends EventTarget {
     this.dispatchEvent(new Event('stateChange'));
   }
 
-  get socket() {
-    return this._socket;
-  }
-
-  set socket(val: WebSocket | null) {
-    this._socket = val;
-  }
-
   get winner() {
     return this._winner;
   }
   set winner(val: Player | null) {
     this._winner = val;
+  }
+
+  public canPlaceItem(): boolean {
+    return this._gameState === 'IN_PROGRESS' && this._player !== null;
+  }
+
+  public setAwaitMove() {
+    this.gameState = 'AWAIT_MOVE';
   }
 }
