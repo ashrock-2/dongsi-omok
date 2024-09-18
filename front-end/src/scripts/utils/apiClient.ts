@@ -7,7 +7,7 @@ export const sendCommand = async (command: ClientCommand): Promise<any> => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Client-ID': localStorage.getItem('clientId') || '',
+      // 'Client-ID': localStorage.getItem('clientId') || '',
     },
     body: JSON.stringify(command),
   });

@@ -10,11 +10,11 @@ import { match } from 'ts-pattern';
 import {
   generateRoomId,
   getCommandQueueState,
+  sendServerCommand,
   type ClientMap,
   type GameQueue,
   type Rooms,
 } from './util';
-import { Mutex } from 'async-mutex';
 import { type Request, type Response } from 'express';
 
 export const handleClientCommand = (
@@ -50,14 +50,13 @@ export const handleClientCommand = (
             const placeItemCommand = mergePlaceItemCommand(room.queue);
             const { isFinish, winner, winningCoordinates } =
               updateBoardAndCheckWin(room.board, placeItemCommand);
-            room.clients.forEach((client) => {
-              res.json(JSON.stringify(placeItemCommand));
-              res.json(
-                JSON.stringify(
-                  makeServerCommand('NOTIFY_WINNER', {
-                    payload: { isFinish, winner, winningCoordinates },
-                  }),
-                ),
+            room.clients.forEach(({ clientId, sseResponse }) => {
+              sendServerCommand(sseResponse, placeItemCommand);
+              sendServerCommand(
+                sseResponse,
+                makeServerCommand('NOTIFY_WINNER', {
+                  payload: { isFinish, winner, winningCoordinates },
+                }),
               );
             });
             room.queue.length = 0;

@@ -23,35 +23,5 @@ const initSSE = async () => {
   };
 };
 
-// const connectSocket = () => {
-//   State.socket = new WebSocket(backendUrl);
-//   State.socket.onopen = (e) => {
-//     State.gameState = 'WAITING_FOR_OPPONENT';
-//     State.socket?.send(
-//       JSON.stringify(makeClientCommand('JOIN_QUEUE', { payload: {} })),
-//     );
-//     State.socket!.onclose = (event) => {
-//       if (!event.wasClean && reconnectAttempts < 3) {
-//         setTimeout(() => {
-//           connectSocket();
-//           reconnectAttempts++;
-//         }, Math.random() * 1000);
-//       }
-//     };
-//     State.socket!.onmessage = (event) => {
-//       try {
-//         const parsedMessage = JSON.parse(event.data.toString());
-//         console.log(parsedMessage);
-//         if (isValidServerCommand(parsedMessage)) {
-//           handleServerCommand(parsedMessage, State);
-//         }
-//       } catch (err) {
-//         console.error('Failed to parse message', err);
-//       }
-//     };
-//   };
-// };
-
-// connectSocket();
 initSSE();
 init(State);

@@ -24,7 +24,9 @@ type ServerCommandPayloadMapType = {
   [ServerCommands.SET_PLAYER_COLOR]: {
     color: Player;
   };
-  [ServerCommands.START_GAME]: {};
+  [ServerCommands.START_GAME]: {
+    playerId: string;
+  };
   [ServerCommands.SEND_ROOM_ID]: {
     roomId: string;
   };

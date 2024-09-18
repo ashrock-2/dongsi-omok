@@ -10,6 +10,7 @@ export { Board };
 import { Notification } from '@src/scripts/components/Notification';
 export { Notification };
 import { BorderBeam } from '@src/scripts/components/BorderBeam';
+import { sendCommand } from './apiClient';
 export { BorderBeam };
 
 export const init = (State: StateStore) => {
@@ -25,16 +26,15 @@ export const init = (State: StateStore) => {
     const { row, col } = customEvent.detail;
     place_a_item(find_item_in_board(row, col), 'plan', State.player);
     State.gameState = 'AWAIT_MOVE';
-    State.socket?.send(
-      JSON.stringify(
-        makeClientCommand('PLACE_ITEM', {
-          payload: {
-            item: State.player,
-            row,
-            col: col as (typeof ALPHABETS)[number],
-          },
-        }),
-      ),
+    sendCommand(
+      makeClientCommand('PLACE_ITEM', {
+        playerId: State.playerId!,
+        payload: {
+          item: State.player,
+          row,
+          col: col as (typeof ALPHABETS)[number],
+        },
+      }),
     );
   });
   const borderBeam = board?.querySelector('border-beam') as BorderBeam;

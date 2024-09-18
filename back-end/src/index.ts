@@ -13,12 +13,23 @@ import {
 } from './util';
 import { handleClientCommand } from './handleClientCommand';
 import express from 'express';
+import cors from 'cors';
 
 const app = express();
 const server = createServer(app);
 const rooms: Rooms = new Map();
 const clientMap: ClientMap = new Map();
 const gameQueue: GameQueue = [];
+
+app.use(
+  cors({
+    origin: 'http://localhost:4321',
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Client-ID'],
+  }),
+);
+app.use(express.json());
 
 app.post('/api/command', (req, res) => {
   const command = req.body;
@@ -35,8 +46,6 @@ app.get('/api/events', (req, res) => {
     'Content-Type': 'text/event-stream',
     Connection: 'keep-alive',
     'Cache-Control': 'no-cache',
-    'Access-Control-Allow-Origin': 'http://localhost:4321',
-    'Access-Control-Allow-Credentials': 'true',
   };
   res.writeHead(200, headers);
   const clientId = generateRoomId();
@@ -58,7 +67,11 @@ app.get('/api/events', (req, res) => {
       ),
         sendServerCommand(
           sseResponse,
-          makeServerCommand('START_GAME', { payload: {} }),
+          makeServerCommand('START_GAME', {
+            payload: {
+              playerId: clientId,
+            },
+          }),
         );
     });
     gameQueue.splice(0, 2);
