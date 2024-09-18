@@ -1,10 +1,10 @@
+import { match, P } from 'ts-pattern';
 import {
   isValidClientCommand,
   initBoard,
   makeServerCommand,
   updateBoardAndCheckWin,
   mergePlaceItemCommand,
-  type ClientCommand,
   type ClientCommandType,
 } from '@dongsi-omok/shared';
 import {
@@ -16,81 +16,86 @@ import {
   type GameQueue,
 } from './util';
 import { type Request, type Response } from 'express';
-import { match } from 'ts-pattern';
 
 export const handleCommand = (
   req: Request,
   res: Response,
   rooms: Rooms,
   clientMap: ClientMap,
-) => {
-  const command = req.body;
-  if (!isValidClientCommand(command)) {
-    return res.status(400).json({ error: 'Invalid command' });
-  }
-
-  const roomId = clientMap.get(command.playerId);
-  if (!roomId) {
-    return res.status(404).json({ error: 'Room not found' });
-  }
-
-  const room = rooms.get(roomId);
-  if (!room) {
-    return res.status(404).json({ error: 'Room not found' });
-  }
-
-  const clientResponse = room.clients.find(
-    ({ clientId }) => clientId === command.playerId,
-  )?.sseResponse;
-
-  if (!clientResponse) {
-    return res.status(404).json({ error: 'Client not found' });
-  }
-
-  match(command)
-    .with({ id: 'PLACE_ITEM' }, (cmd: ClientCommandType<'PLACE_ITEM'>) => {
-      const queueState = getCommandQueueState(room.queue);
-      const { item } = cmd.payload;
-
-      if (
-        (queueState === 'EMPTY' && (item === 'black' || item === 'white')) ||
-        (queueState === 'BLACK' && item === 'white') ||
-        (queueState === 'WHITE' && item === 'black')
-      ) {
-        room.queue.push(cmd);
-
-        if (room.queue.length === 2) {
-          const placeItemCommand = mergePlaceItemCommand(room.queue);
-          const { isFinish, winner, winningCoordinates } =
-            updateBoardAndCheckWin(room.board, placeItemCommand);
-
-          room.clients.forEach(({ sseResponse }) => {
-            sendServerCommand(sseResponse, placeItemCommand);
-            sendServerCommand(
-              sseResponse,
-              makeServerCommand('NOTIFY_WINNER', {
-                payload: { isFinish, winner, winningCoordinates },
-              }),
-            );
-          });
-
-          room.queue = [];
-        }
+) =>
+  match(req.body)
+    .when(isValidClientCommand, (cmd) => {
+      const roomId = clientMap.get(cmd.playerId);
+      if (!roomId) {
+        return res.status(404).json({ error: 'RoomId not found' });
       }
-    })
-    .with({ id: 'CREATE_ROOM' }, () => {
-      // Handle CREATE_ROOM command
-    })
-    .with({ id: 'JOIN_ROOM' }, () => {
-      // Handle JOIN_ROOM command
-    })
-    .with({ id: 'JOIN_QUEUE' }, () => {
-      // Handle JOIN_QUEUE command
-    })
-    .exhaustive();
+      const room = rooms.get(roomId);
+      if (!room) {
+        return res.status(404).json({ error: 'Room not found' });
+      }
+      const clientResponse = room.clients.find(
+        ({ clientId }) => clientId === cmd.playerId,
+      )?.sseResponse;
+      if (!clientResponse) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
 
-  res.status(200).json({ message: 'Command processed successfully' });
-};
+      return match(cmd)
+        .with({ id: 'PLACE_ITEM' }, (c: ClientCommandType<'PLACE_ITEM'>) => {
+          const queueState = getCommandQueueState(room.queue);
+          const { item } = c.payload;
+
+          if (
+            (queueState === 'EMPTY' &&
+              (item === 'black' || item === 'white')) ||
+            (queueState === 'BLACK' && item === 'white') ||
+            (queueState === 'WHITE' && item === 'black')
+          ) {
+            room.queue.push(c);
+
+            if (room.queue.length === 2) {
+              const placeItemCommand = mergePlaceItemCommand(room.queue);
+              const { isFinish, winner, winningCoordinates } =
+                updateBoardAndCheckWin(room.board, placeItemCommand);
+
+              room.clients.forEach(({ sseResponse }) => {
+                sendServerCommand(sseResponse, placeItemCommand);
+                sendServerCommand(
+                  sseResponse,
+                  makeServerCommand('NOTIFY_WINNER', {
+                    payload: { isFinish, winner, winningCoordinates },
+                  }),
+                );
+              });
+
+              room.queue = [];
+            }
+          }
+          return res
+            .status(200)
+            .json({ message: 'PLACE_ITEM processed successfully' });
+        })
+        .with({ id: 'CREATE_ROOM' }, () => {
+          // Handle CREATE_ROOM command
+          return res
+            .status(200)
+            .json({ message: 'CREATE_ROOM processed successfully' });
+        })
+        .with({ id: 'JOIN_ROOM' }, () => {
+          // Handle JOIN_ROOM command
+          return res
+            .status(200)
+            .json({ message: 'JOIN_ROOM processed successfully' });
+        })
+        .with({ id: 'JOIN_QUEUE' }, () => {
+          // Handle JOIN_QUEUE command
+          return res
+            .status(200)
+            .json({ message: 'JOIN_QUEUE processed successfully' });
+        })
+        .exhaustive();
+    })
+    .otherwise(() => res.status(400).json({ error: 'Invalid command' }));
 
 export const handleSSEConnection = (
   req: Request,
@@ -110,45 +115,65 @@ export const handleSSEConnection = (
   const clientId = generateRoomId();
   gameQueue.push({ clientId, sseResponse: res });
 
-  if (gameQueue.length === 2) {
-    const roomId = generateRoomId();
-    rooms.set(roomId, {
-      clients: [...gameQueue],
-      queue: [],
-      board: initBoard(),
-    });
+  handleGameQueue(rooms, clientMap, gameQueue);
 
-    gameQueue.forEach(({ clientId, sseResponse }, idx) => {
-      clientMap.set(clientId, roomId);
-      sendServerCommand(
-        sseResponse,
-        makeServerCommand('SET_PLAYER_COLOR', {
-          payload: { color: idx === 0 ? 'black' : 'white' },
-        }),
-      );
-      sendServerCommand(
-        sseResponse,
-        makeServerCommand('START_GAME', {
-          payload: {
-            playerId: clientId,
-          },
-        }),
-      );
-    });
+  req.on('close', () =>
+    handleClientDisconnection(clientId, rooms, clientMap, gameQueue),
+  );
+};
 
-    gameQueue.splice(0, 2);
+function handleGameQueue(
+  rooms: Rooms,
+  clientMap: ClientMap,
+  gameQueue: GameQueue,
+) {
+  match(gameQueue.length)
+    .with(2, () => {
+      const roomId = generateRoomId();
+      rooms.set(roomId, {
+        clients: [...gameQueue],
+        queue: [],
+        board: initBoard(),
+      });
+
+      gameQueue.forEach(({ clientId, sseResponse }, idx) => {
+        clientMap.set(clientId, roomId);
+        sendServerCommand(
+          sseResponse,
+          makeServerCommand('SET_PLAYER_COLOR', {
+            payload: { color: idx === 0 ? 'black' : 'white' },
+          }),
+        );
+        sendServerCommand(
+          sseResponse,
+          makeServerCommand('START_GAME', {
+            payload: {
+              playerId: clientId,
+            },
+          }),
+        );
+      });
+
+      gameQueue.splice(0, 2);
+    })
+    .otherwise(() => {});
+}
+
+function handleClientDisconnection(
+  clientId: string,
+  rooms: Rooms,
+  clientMap: ClientMap,
+  gameQueue: GameQueue,
+) {
+  const queuedClientIdx = gameQueue.findIndex(
+    ({ clientId: _clientId }) => _clientId === clientId,
+  );
+  if (queuedClientIdx !== -1) {
+    gameQueue.splice(queuedClientIdx, 1);
   }
 
-  req.on('close', () => {
-    const queuedClientIdx = gameQueue.findIndex(
-      ({ clientId: _clientId }) => _clientId === clientId,
-    );
-    if (queuedClientIdx !== -1) {
-      gameQueue.splice(queuedClientIdx, 1);
-    }
-
-    const roomId = clientMap.get(clientId);
-    if (roomId) {
+  match(clientMap.get(clientId))
+    .with(P.string, (roomId) => {
       const room = rooms.get(roomId);
       if (room) {
         const idx = room.clients.findIndex(
@@ -168,6 +193,6 @@ export const handleSSEConnection = (
         }
       }
       clientMap.delete(clientId);
-    }
-  });
-};
+    })
+    .otherwise(() => {});
+}
