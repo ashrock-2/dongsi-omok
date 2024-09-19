@@ -15,10 +15,10 @@ import Layout from './BaseLayout.astro';
   .bg-layer,
   .pointer-layer[data-show] {
     h1 {
-      animation: slide-up var(--animnation-duration) both;
+      animation: slide-up var(--animnation-duration) var(--ease-out-cubic) both;
     }
     ul {
-      animation: slide-up var(--animnation-duration) both;
+      animation: slide-up var(--animnation-duration) var(--ease-out-cubic) both;
       animation-delay: var(--stagger);
     }
   }
@@ -56,19 +56,6 @@ import Layout from './BaseLayout.astro';
       hsl(0, 0%, 8%) 100%
     );
     clip-path: circle(24px at var(--x, 50%) var(--y, 50%));
-  }
-  @keyframes slide-up {
-    0% {
-      transform: translateY(50%);
-      opacity: 0;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      transform: none;
-      opacity: 1;
-    }
   }
 </style>
 <script>

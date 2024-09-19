@@ -3,7 +3,7 @@
   background-color: hsla(0, 0%, 0%, 42%);
   animation:
     blink 3s cubic-bezier(0.5, 0, 0.5, 1) infinite,
-    slide-up 0.3s 0.2s both;
+    slide-up 0.3s 0.2s var(--ease-out-quad) both;
   padding: 8px 12px;
   border-radius: 6px;
   z-index: 1;
