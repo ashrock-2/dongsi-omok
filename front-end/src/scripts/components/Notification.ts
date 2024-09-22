@@ -4,6 +4,7 @@ import type { GameState } from '@dongsi-omok/shared';
 import { applyParticleEffect } from '@src/scripts/components/ParticleEffect';
 import { computePosition } from '@floating-ui/dom';
 import { copyable } from '@src/scripts/icons/svg';
+import { REMATCH_REQUEST, REMATCH_RESPONSE } from '../events/GameEvents';
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -40,7 +41,7 @@ export class Notification extends HTMLElement {
       '.container',
     ) as HTMLDivElement;
     const strong = this.shadowRoot?.querySelector('strong')!;
-    applyParticleEffect(wrapper);
+    // applyParticleEffect(wrapper);
     wrapper.addEventListener('click', () => {
       match(this.state).with(
         {
@@ -69,7 +70,34 @@ export class Notification extends HTMLElement {
     subText.style.display = getSubTextVisibility(this.state!);
     mainText.innerText = getMainText(this.state!);
     strong.innerText = getStrongText(this.state!);
+
+    // 기존 버튼들 제거
+    wrapper.querySelectorAll('button').forEach((button) => button.remove());
+
+    // 새로운 버튼 추가
+    const buttons = getButtons(this.state!);
+    if (buttons) {
+      wrapper.insertAdjacentHTML('beforeend', buttons);
+      this.addButtonListeners(wrapper);
+    }
   }
+
+  private addButtonListeners(wrapper: HTMLElement) {
+    const acceptButton = wrapper.querySelector('#accept-rematch');
+    const rejectButton = wrapper.querySelector('#reject-rematch');
+    const requestButton = wrapper.querySelector('#request-rematch');
+
+    acceptButton?.addEventListener('click', () =>
+      this.dispatchRematchResponse(true),
+    );
+    rejectButton?.addEventListener('click', () =>
+      this.dispatchRematchResponse(false),
+    );
+    requestButton?.addEventListener('click', () =>
+      this.dispatchRematchRequest(),
+    );
+  }
+
   private showCopyComplete() {
     const wrapper = this.shadowRoot?.querySelector('.container') as HTMLElement;
     const snackbar = this.shadowRoot?.querySelector(
@@ -106,6 +134,16 @@ export class Notification extends HTMLElement {
       snackbar.style.display = 'none';
     }, 3000);
   }
+
+  private dispatchRematchRequest() {
+    const event = new CustomEvent(REMATCH_REQUEST);
+    document.dispatchEvent(event);
+  }
+
+  private dispatchRematchResponse(accept: boolean) {
+    const event = new CustomEvent(REMATCH_RESPONSE, { detail: accept });
+    document.dispatchEvent(event);
+  }
 }
 
 const copyText = (dom: HTMLElement) =>
@@ -123,7 +161,7 @@ const getMainText = (state: StateStore) =>
       () => '다음 주소를 상대방에게 공유해주세요.',
     )
     .with({ gameState: 'GAME_OVER' }, (state) => {
-      return match({ winner: state.winner, player: state.player })
+      const baseText = match({ winner: state.winner, player: state.player })
         .with(
           { winner: 'black', player: 'black' },
           { winner: 'white', player: 'white' },
@@ -135,6 +173,22 @@ const getMainText = (state: StateStore) =>
           () => '당신이 졌습니다!',
         )
         .otherwise(() => '비겼습니다!');
+
+      return match(state)
+        .with(
+          { rematchRequesterId: P.when((id) => id === state.playerId) },
+          () =>
+            `${baseText} 재경기 요청을 보냈습니다. 상대방의 응답을 기다리는 중...`,
+        )
+        .with(
+          {
+            rematchRequesterId: P.when(
+              (id) => id !== null && id !== state.playerId,
+            ),
+          },
+          () => `${baseText} 상대방이 재경기를 요청했습니다. 수락하시겠습니까?`,
+        )
+        .otherwise(() => `${baseText} 재경기를 요청하시겠습니까?`);
     })
     .with(
       {
@@ -145,6 +199,29 @@ const getMainText = (state: StateStore) =>
     )
     .with({ gameState: 'LEAVE_OPPONENT' }, () => '상대방이 나갔습니다.')
     .otherwise(() => '');
+
+const getButtons = (state: StateStore) =>
+  match(state)
+    .with(
+      {
+        gameState: 'GAME_OVER',
+        rematchRequesterId: P.when(
+          (id) => id !== null && id !== state.playerId,
+        ),
+      },
+      () => `
+        <button id="accept-rematch">수락</button>
+        <button id="reject-rematch">거절</button>
+      `,
+    )
+    .with(
+      {
+        gameState: 'GAME_OVER',
+        rematchRequesterId: null,
+      },
+      () => `<button id="request-rematch">재경기 요청</button>`,
+    )
+    .otherwise(() => null);
 
 const getStrongText = (state: StateStore) =>
   match(state)

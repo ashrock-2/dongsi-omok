@@ -93,6 +93,55 @@ export const handleCommand = (
             .status(200)
             .json({ message: 'JOIN_QUEUE processed successfully' });
         })
+        .with(
+          { id: 'REQUEST_REMATCH' },
+          (c: ClientCommandType<'REQUEST_REMATCH'>) => {
+            const { accept } = c.payload;
+            const room = rooms.get(roomId!);
+            if (!room) return res.status(404).json({ error: 'Room not found' });
+
+            if (accept) {
+              room.rematchRequests.add(cmd.playerId);
+              if (room.rematchRequests.size === 2) {
+                // 양쪽 모두 동의
+                room.clients.forEach(({ sseResponse }) => {
+                  sendServerCommand(
+                    sseResponse,
+                    makeServerCommand('START_REMATCH', { payload: {} }),
+                  );
+                });
+                room.board = initBoard();
+                room.rematchRequests.clear();
+              } else {
+                // 한 쪽만 동의
+                room.clients.forEach(({ clientId, sseResponse }) => {
+                  if (clientId !== cmd.playerId) {
+                    sendServerCommand(
+                      sseResponse,
+                      makeServerCommand('REMATCH_REQUESTED', {
+                        payload: { requesterId: cmd.playerId },
+                      }),
+                    );
+                  }
+                });
+              }
+            } else {
+              // 거절
+              room.rematchRequests.clear();
+              room.clients.forEach(({ clientId, sseResponse }) => {
+                sendServerCommand(
+                  sseResponse,
+                  makeServerCommand('REMATCH_RESPONSE', {
+                    payload: { accepted: false, responderId: cmd.playerId },
+                  }),
+                );
+              });
+            }
+            return res
+              .status(200)
+              .json({ message: 'REQUEST_REMATCH processed successfully' });
+          },
+        )
         .exhaustive();
     })
     .otherwise(() => res.status(400).json({ error: 'Invalid command' }));
@@ -134,6 +183,7 @@ function handleGameQueue(
         clients: [...gameQueue],
         queue: [],
         board: initBoard(),
+        rematchRequests: new Set(),
       });
 
       gameQueue.forEach(({ clientId, sseResponse }, idx) => {

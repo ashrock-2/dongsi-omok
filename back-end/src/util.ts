@@ -12,6 +12,7 @@ export type Rooms = Map<
     clients: Array<{ clientId: string; sseResponse: Response }>;
     queue: PlaceCommandQueue;
     board: Board;
+    rematchRequests: Set<string>;
   }
 >;
 

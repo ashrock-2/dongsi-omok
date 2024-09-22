@@ -7,6 +7,9 @@ export const ServerCommands = {
   SEND_ROOM_ID: 'SEND_ROOM_ID',
   NOTIFY_WINNER: 'NOTIFY_WINNER',
   LEAVE_OPPONENT: 'LEAVE_OPPONENT',
+  REMATCH_REQUESTED: 'REMATCH_REQUESTED',
+  REMATCH_RESPONSE: 'REMATCH_RESPONSE',
+  START_REMATCH: 'START_REMATCH',
 } as const;
 export type KeyOfServerCommands = keyof typeof ServerCommands;
 export type ServerCommandType<COMMAND extends keyof typeof ServerCommands> = {
@@ -36,6 +39,14 @@ type ServerCommandPayloadMapType = {
     winningCoordinates: Array<{ row: number; col: number }> | null;
   };
   [ServerCommands.LEAVE_OPPONENT]: {};
+  [ServerCommands.REMATCH_REQUESTED]: {
+    requesterId: string;
+  };
+  [ServerCommands.REMATCH_RESPONSE]: {
+    accepted: boolean;
+    responderId: string;
+  };
+  [ServerCommands.START_REMATCH]: {};
 };
 
 export type ServerCommandPayloadRegistry = {

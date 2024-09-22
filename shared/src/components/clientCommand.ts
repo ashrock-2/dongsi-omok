@@ -5,6 +5,7 @@ export const ClientCommands = {
   CREATE_ROOM: 'CREATE_ROOM',
   JOIN_ROOM: 'JOIN_ROOM',
   JOIN_QUEUE: 'JOIN_QUEUE',
+  REQUEST_REMATCH: 'REQUEST_REMATCH',
 } as const;
 export type KeyOfClientCommands = keyof typeof ClientCommands;
 export type ClientCommandType<COMMAND extends keyof typeof ClientCommands> = {
@@ -25,6 +26,9 @@ type ClientCommandPayloadMapType = {
     roomId: string;
   };
   [ClientCommands.JOIN_QUEUE]: {};
+  [ClientCommands.REQUEST_REMATCH]: {
+    accept: boolean;
+  };
 };
 
 export type ClientCommandPayloadRegistry = {

@@ -7,6 +7,7 @@ export class StateStore extends EventTarget {
   private _playerId: string | null = null;
   private _winner: Player | null = null;
   private _winningCoordinates: Array<{ row: number; col: number }> = [];
+  private _rematchRequesterId: string | null = null;
 
   constructor() {
     super();
@@ -63,11 +64,33 @@ export class StateStore extends EventTarget {
     this._winner = val;
   }
 
+  get rematchRequesterId() {
+    return this._rematchRequesterId;
+  }
+
   public canPlaceItem(): boolean {
     return this._gameState === 'IN_PROGRESS' && this._player !== null;
   }
 
   public setAwaitMove() {
     this.gameState = 'AWAIT_MOVE';
+  }
+
+  public setRematchRequested(requesterId: string) {
+    this._rematchRequesterId = requesterId;
+    this.dispatchEvent(new Event('stateChange'));
+  }
+
+  public setRematchRejected(responderId: string) {
+    this._rematchRequesterId = null;
+    this.dispatchEvent(new Event('stateChange'));
+  }
+
+  public resetGame() {
+    this._gameState = 'IN_PROGRESS';
+    this._winner = null;
+    this._winningCoordinates = [];
+    this._rematchRequesterId = null;
+    this.dispatchEvent(new Event('stateChange'));
   }
 }

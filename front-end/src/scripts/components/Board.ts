@@ -30,6 +30,13 @@ export class Board extends HTMLElement {
       }
     });
   }
+
+  public resetBoard() {
+    this.querySelectorAll('button').forEach((button) => {
+      button.className = '';
+      button.removeAttribute('disabled');
+    });
+  }
 }
 
 customElements.define('omok-board', Board);

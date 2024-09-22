@@ -10,6 +10,7 @@ import {
 } from '@dongsi-omok/shared';
 import { match } from 'ts-pattern';
 import type { Board } from './components/Board';
+import { REMATCH_REQUEST, REMATCH_RESPONSE } from './events/GameEvents';
 
 export class GameController {
   private readonly state: StateStore;
@@ -20,6 +21,7 @@ export class GameController {
     this.board = board;
     this.board.addEventListener('click', this.handleBoardClick.bind(this));
     this.initSSE();
+    this.initEventListeners();
   }
 
   private async initSSE() {
@@ -31,6 +33,15 @@ export class GameController {
     return () => {
       eventSource.close();
     };
+  }
+
+  private initEventListeners() {
+    document.addEventListener(REMATCH_REQUEST, () =>
+      this.handleRematchRequest(),
+    );
+    document.addEventListener(REMATCH_RESPONSE, (e: CustomEvent<boolean>) =>
+      this.handleRematchResponse(e.detail),
+    );
   }
 
   private handleBoardClick(event: Event) {
@@ -116,10 +127,45 @@ export class GameController {
       .with({ id: 'LEAVE_OPPONENT' }, () => {
         this.state.gameState = 'LEAVE_OPPONENT';
       })
+      .with(
+        { id: 'REMATCH_REQUESTED' },
+        (cmd: ServerCommandType<'REMATCH_REQUESTED'>) => {
+          this.state.setRematchRequested(cmd.payload.requesterId);
+        },
+      )
+      .with(
+        { id: 'REMATCH_RESPONSE' },
+        (cmd: ServerCommandType<'REMATCH_RESPONSE'>) => {
+          if (!cmd.payload.accepted) {
+            this.state.setRematchRejected(cmd.payload.responderId);
+          }
+        },
+      )
+      .with({ id: 'START_REMATCH' }, () => {
+        this.state.resetGame();
+        this.board.resetBoard();
+      })
       .exhaustive();
   }
 
   public getState() {
     return this.state;
+  }
+
+  private handleRematchRequest() {
+    this.requestRematch(true);
+  }
+
+  private handleRematchResponse(accept: boolean) {
+    this.requestRematch(accept);
+  }
+
+  public requestRematch(accept: boolean) {
+    sendCommand(
+      makeClientCommand('REQUEST_REMATCH', {
+        playerId: this.state.playerId!,
+        payload: { accept },
+      }),
+    );
   }
 }
