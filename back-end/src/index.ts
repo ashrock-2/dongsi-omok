@@ -16,8 +16,7 @@ const ALLOWED_ORIGINS = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // origin이 undefined인 경우는 같은 출처의 요청을 의미합니다.
-      if (!origin || ALLOWED_ORIGINS.indexOf(origin) !== -1) {
+     if (!origin || ALLOWED_ORIGINS.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));

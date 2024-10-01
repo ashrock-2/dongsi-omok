@@ -1,4 +1,4 @@
-import type { ALPHABETS, BoardItem, GameState, Player } from './common';
+import type { ALPHABETS, BoardItem, GameState } from './common';
 
 export const ClientCommands = {
   PLACE_ITEM: 'PLACE_ITEM',
