@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/IndexLayout.astro';
+import MenuContent from '../scripts/components/MenuContent.astro';
+---
+
+<Layout>
+  <Fragment slot={'bg'}>
+    <MenuContent titleColor="black" linkColor="white" />
+  </Fragment>
+  <Fragment slot={'pt'}>
+    <MenuContent titleColor="white" linkColor="black" />
+  </Fragment>
+</Layout>

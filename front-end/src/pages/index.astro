@@ -1,13 +1,10 @@
 ---
-import Layout from '../layouts/IndexLayout.astro';
-import MenuContent from '../scripts/components/MenuContent.astro';
+import Layout from '../layouts/GameLayout.astro';
+import Board from '../scripts/components/Board.astro';
 ---
 
 <Layout>
-  <Fragment slot={'bg'}>
-    <MenuContent titleColor="black" linkColor="white" />
-  </Fragment>
-  <Fragment slot={'pt'}>
-    <MenuContent titleColor="white" linkColor="black" />
-  </Fragment>
+  <game-notification></game-notification>
+  <Board />
 </Layout>
+<script src="../scripts/main.ts"></script>
