@@ -72,14 +72,14 @@ export class Notification extends HTMLElement {
     strong.innerText = getStrongText(this.state!);
 
     // 기존 버튼들 제거
-    wrapper.querySelectorAll('button').forEach((button) => button.remove());
-
-    // 새로운 버튼 추가
-    const buttons = getButtons(this.state!);
-    if (buttons) {
-      wrapper.insertAdjacentHTML('beforeend', buttons);
-      this.addButtonListeners(wrapper);
-    }
+    //wrapper.querySelectorAll('button').forEach((button) => button.remove());
+    //
+    //// 새로운 버튼 추가
+    //const buttons = getButtons(this.state!);
+    //if (buttons) {
+    //  wrapper.insertAdjacentHTML('beforeend', buttons);
+    //  this.addButtonListeners(wrapper);
+    //}
   }
 
   private addButtonListeners(wrapper: HTMLElement) {
@@ -173,22 +173,23 @@ const getMainText = (state: StateStore) =>
           () => '당신이 졌습니다!',
         )
         .otherwise(() => '비겼습니다!');
+      return baseText
 
-      return match(state)
-        .with(
-          { rematchRequesterId: P.when((id) => id === state.playerId) },
-          () =>
-            `${baseText} 재경기 요청을 보냈습니다. 상대방의 응답을 기다리는 중...`,
-        )
-        .with(
-          {
-            rematchRequesterId: P.when(
-              (id) => id !== null && id !== state.playerId,
-            ),
-          },
-          () => `${baseText} 상대방이 재경기를 요청했습니다. 수락하시겠습니까?`,
-        )
-        .otherwise(() => `${baseText} 재경기를 요청하시겠습니까?`);
+      //return match(state)
+      //  .with(
+      //    { rematchRequesterId: P.when((id) => id === state.playerId) },
+      //    () =>
+      //      `${baseText} 재경기 요청을 보냈습니다. 상대방의 응답을 기다리는 중...`,
+      //  )
+      //  .with(
+      //    {
+      //      rematchRequesterId: P.when(
+      //        (id) => id !== null && id !== state.playerId,
+      //      ),
+      //    },
+      //    () => `${baseText} 상대방이 재경기를 요청했습니다. 수락하시겠습니까?`,
+      //  )
+      //  .otherwise(() => `${baseText} 재경기를 요청하시겠습니까?`);
     })
     .with(
       {
